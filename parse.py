@@ -12,38 +12,16 @@ class Parsing:
 
     def __init__(self, chaine):
         
-        self.liste, self.msg_erreur = tools.equal_number(chaine)
-        self.liste_finale = []
-        self.var = ''
-        # resolution
-        if self.liste and re.match(r'( )?\?( )?', self.liste[1]):
-            self.liste_finale = tools.premier_test(self.liste[0])
-        # assignation
-        elif self.liste and '?' not in self.liste[1]:
-            self.liste_finale = tools.premier_test(self.liste[1])
-            if not self.liste_finale:
-                self.msg_erreur = "Error: ? is missing"
-            else:
-                self.var = self.liste[0].lower() 
-        else:
-            if self.msg_erreur == '':
-                self.msg_erreur = "Error: ? is missing"
-    
-    def second_parsing(self):
-
-        self.nbr = -1
-        msg = ''
-        if self.liste_finale:
-            self.nbr, msg = tools.second_test(self.liste_finale)
-        if self.var != '':
-            m = re.match(r'^[a-z]+$', self.var)
-            if not m:
-                self.nbr = -1
-                msg = self.msg_erreur = "Error: Not a valid variable name"
-        if self.msg_erreur == '':
-            self.msg_erreur = msg
-        return self.nbr
-    
-    def affiche_erreur(self):
-
-        print(self.msg_erreur)
+        liste_gauche, liste_droite = tools.equal_number(chaine)
+        # permutation des parties gauche et droite dans le cas ou la partie droite = '?'
+        if liste_droite and liste_gauche:
+            liste_droite = liste_droite.strip()
+            liste_gauche = liste_gauche.strip()
+            if re.match(r'( )?\?( )?', liste_droite):
+                liste_droite = liste_gauche
+                liste_gauche = ['?']
+            # traiter la partie gauche
+            self.var = tools.traitement_nom_de_variable(liste_gauche)
+            print(self.var)
+            # traiter la partie droite
+            self.liste_resultat = tools.traitement_partie_calculatoire(liste_droite)
