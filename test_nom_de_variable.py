@@ -12,22 +12,28 @@ def test_complexe(chaine):
 # tester si le nom de la fonction est correcte 
 def test_fonction(chaine):
 
-    motif = r'[a-zA-Z]+\(([a-zA-Z]+\([a-zA-Z]\)|[a-zA-Z]\)'
+    motif = r'[a-zA-Z]+\(([a-zA-Z]+\([a-zA-Z]\)|[a-zA-Z])\)'
     try:
         assert re.match(motif, chaine)
         index = chaine.index('(')
-        nom_fonction = chaine[:index - 1]
-        nom_compoition = ''
+        nom_fonction = ''.join(chaine[:index])
+        nom_composition = []
         nouvelle_chaine = chaine[index + 1:]
         if '(' in nouvelle_chaine:
             index = nouvelle_chaine.index('(')
-            nom_composition = nouvelle_chaine[:index - 1]
-            inconnu = nouvelle_chaine[index + 1]
+            nom_composition = nouvelle_chaine[:index]
+            index += 1
+            inconnu = nouvelle_chaine[index:index + 1]
         else:
-            inconnu = nouvelle_chaine[index + 1]
-        return ''.join(nom_fonction), ''.join(name_compoition), inconnu
+            inconnu = nouvelle_chaine[0:1]
+        if not(nom_composition):
+            nom_composition = ''
+        else:
+            nom_composition = ''.join(nom_composition)
+        return nom_fonction, nom_composition, inconnu
     except:
         print("Error : it should be like 'f(x)' or 'f(g(x))'")
+        return "", "", ""
 
 # tester si le nom de la variable est correcte 
 def test_variable(chaine):

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import re
-import parsingTools as tools
+import parsingOutils as outils
 
 class Parsing:
     """ Parser la chaine.
@@ -12,7 +12,7 @@ class Parsing:
 
     def __init__(self, chaine):
         
-        liste_gauche, liste_droite = tools.equal_number(chaine)
+        liste_gauche, liste_droite = outils.equal_number(chaine)
         # permutation des parties gauche et droite dans le cas ou la partie droite = '?'
         if liste_droite and liste_gauche:
             liste_droite = liste_droite.strip()
@@ -21,7 +21,7 @@ class Parsing:
                 liste_droite = liste_gauche
                 liste_gauche = ['?']
             # traiter la partie gauche
-            self.var = tools.traitement_nom_de_variable(liste_gauche)
+            self.var = outils.traitement_nom_de_variable(liste_gauche)
             print(self.var)
             # traiter la partie droite
-            self.liste_resultat = tools.traitement_partie_calculatoire(liste_droite)
+            self.liste_resultat = outils.traitement_partie_calculatoire(liste_droite, self.var)

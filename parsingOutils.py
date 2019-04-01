@@ -3,6 +3,8 @@
 import re
 import matrice
 import test_nom_de_variable as var
+import fonctionPolynomiale as polynome
+import calculs
 
 # verifier l'existence d'un seul = dans la chaine
 def equal_number(chaine):
@@ -51,15 +53,15 @@ def test_elementaire(chaine):
     for i, element in enumerate(liste):
         if element == ')':
             liste_finale
-        m = re.search(r"(\*|-|%|/|\+)", element)
-        if element in '+*-/%':
+        m = re.search(r"(\*|-|%|/|\+|\^)", element)
+        if element in '+*-/%^':
             liste_finale.append(element)
         elif m:
             char = m.group(0)
             liste_intermediaire = element.split(char)
-            liste_finale.append(liste_intermediaire[0])
+            liste_finale = liste_finale + liste_intermediaire[0]
             liste_finale.append(char)
-            liste_finale.append(liste_intermediaire[1])
+            liste_finale = liste_finale + liste_intermediaire[1]
         else:
             liste_finale.append(element)
     return liste_finale
@@ -73,16 +75,15 @@ def premier_test(chaine):
     else:
         indice_1 = chaine.index('(')
         if indice_1 != 0:
-            liste_finale.append(test_elementaire(chaine[:indice_1].strip()))
+            liste_finale = liste_finale + test_elementaire(chaine[:indice_1].strip())
         indice_1 += 1
         nouvelle_chaine = chaine[indice_1:].strip()
-        indice_2 = indice_parenthese(nouvelle_chaine) + 1
-        if indice_2 > 1:
-            indice_2 -= 1
-            print(nouvelle_chaine[:indice_2].strip())
+        indice_2 = indice_parenthese(nouvelle_chaine)
+        if indice_2 > 0:
             liste_finale.append(premier_test(nouvelle_chaine[:indice_2].strip()))
             indice_2 += 2
-            liste_finale.append(premier_test(nouvelle_chaine[indice_2:].strip()))
+            if indice_2 < len(nouvelle_chaine):
+                liste_finale = liste_finale + premier_test(nouvelle_chaine[indice_2:].strip())
         else:
             liste_finale = []
     return liste_finale
@@ -93,7 +94,7 @@ def second_test(chaine):
     nbr = -1
     msg = ''
     for element in chaine:
-        if re.match(r"^((([0-9]*(\.[0-9]+)?)(i)?)|/|%|\+|-|\*|([0-9]*(\.[0-9]+)?)[a-zA-Z]+)$", element):
+        if re.match(r"^((([0-9]*(\.[0-9]+)?)(i)?)|\^|/|%|\+|-|\*|([0-9]*(\.[0-9]+)?)[a-zA-Z]+)$", element):
             nbr = 1
         elif re.match(r'\[(\[[0-9]+,[0-9]+\](;)?)+\]', element):
             nbr = 1
@@ -140,9 +141,14 @@ def traitement_nom_de_variable(chaine):
         return [chaine.lower()]
 
 # traiter la partie calculatoire
-def traitement_partie_calculatoire(chaine):
+def traitement_partie_calculatoire(chaine, var):
 
     # parsing pour mettre cette expression dans une liste
     liste = premier_test(chaine)
     print(liste)
-    # calcul de la liste
+    # simplification de la liste
+    if len(var) === 3:
+        # 1- fonction polynomiale : mettre sous forme de suite de x en puissance croissante
+        liste = polynome.calcul(liste, var[2])
+        # 2- calcul de tous les termes quand c'est possible sauf les inconnus (calcul ordinaire et complexe, matriciel)
+        liste = calculs.calcul(liste)
