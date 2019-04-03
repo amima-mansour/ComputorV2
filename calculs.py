@@ -40,12 +40,24 @@ def calcul_elementaire(liste, char):
         del liste[index + 1]
     return liste
 
-def calcul_simplification(liste):
-    # Cette fonction permet de tester et réorganiser un polynome.
+def variables_inconnues(liste):
+    # Cette fonction recuperer les variables inconnues et leur indice
 
-    tmp = 0
-    resultat = []
-    variables_inconnues = []
+    variables = {}
+    for element in liste:
+        if re.match(r'^[a-zA-z]+$', element):
+            index = liste.index(element)
+            if index + 1 < len(liste) and isinstance(liste[index + 1], list):
+                # une variable de type f(2) 
+                variables[index] = [element.lower() , liste[index + 1]]
+            else:
+                # une variable de type var
+                variables[index] = element.lower()
+    return variables
+
+def calcul_simplification(liste):
+    # Cette fonction permet de tester et réorganiser la liste.
+
     liste = calcul_elementaire(liste, '^')
     liste = calcul_elementaire(liste, '/')
     liste = calcul_elementaire(liste, '%')

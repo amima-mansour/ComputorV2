@@ -140,6 +140,15 @@ def traitement_nom_de_variable(chaine):
         var.test_variable(chaine)
         return [chaine.lower()]
 
+# tester la partie calculatoire
+def test_partie_calculatoire(chaine):
+
+    # parsing pour mettre cette expression dans une liste
+    liste = premier_test(chaine)
+    variables = calculs.variables_inconnues(liste)
+
+    return liste, variables
+
 # traiter la partie calculatoire
 def traitement_partie_calculatoire(chaine, var):
 
@@ -150,5 +159,6 @@ def traitement_partie_calculatoire(chaine, var):
     if len(var) === 3:
         # 1- fonction polynomiale : mettre sous forme de suite de x en puissance croissante
         liste = polynome.calcul(liste, var[2])
-        # 2- calcul de tous les termes quand c'est possible sauf les inconnus (calcul ordinaire et complexe, matriciel)
-        liste = calculs.calcul(liste)
+    # 2- calcul de tous les termes quand c'est possible sauf les inconnus (calcul ordinaire et complexe, matriciel)
+    variables
+    liste = calculs.calcul(liste)
