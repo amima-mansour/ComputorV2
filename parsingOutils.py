@@ -88,22 +88,6 @@ def premier_test(chaine):
             liste_finale = []
     return liste_finale
 
-# tester tous les elements d'une liste
-def second_test(chaine):
-
-    nbr = -1
-    msg = ''
-    for element in chaine:
-        if re.match(r"^((([0-9]*(\.[0-9]+)?)(i)?)|\^|/|%|\+|-|\*|([0-9]*(\.[0-9]+)?)[a-zA-Z]+)$", element):
-            nbr = 1
-        elif re.match(r'\[(\[[0-9]+,[0-9]+\](;)?)+\]', element):
-            nbr = 1
-        else:
-            msg = 'Error invalid expression'
-            nbr = -1
-            break
-    return nbr, msg
-
 # convertit une chaine de caractere en un nombre
 def convertir_en_nombre(chaine):
 

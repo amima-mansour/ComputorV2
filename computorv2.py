@@ -8,10 +8,11 @@ if __name__ == "__main__":
     fonction = {}
     chaine = input()
     while (chaine != 'exit'):
-        parse_object = parse.Parsing(chaine)
-        if parse_object.remplacer(var, fonction) == 0:
-            if parse_object.var != '?':
-                variable = parse_object.var
+        parse_objet = parse.Parsing(chaine)
+        if parse_objet.remplacer(var, fonction) == 0: # remplacement est fait, reste la partie calculatoire
+            variable = parse_objet.var
+            liste = parse_objet.liste
+            if variable != '?':
                 # 2 cas possibles : fonction ou variable
                 if len(variable) == 2:
                     # fonction
@@ -20,7 +21,7 @@ if __name__ == "__main__":
                     # variable
                     var[variable[0]] = liste
             else:
-                parse_object.
+                parse_objet.
                 # afficher le calcul sur la sortie standard
 
         chaine = input()

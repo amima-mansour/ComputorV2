@@ -23,9 +23,8 @@ class Parsing:
                 liste_gauche = ['?']
             # traiter la partie gauche
             self.var = outils.traitement_nom_de_variable(liste_gauche)
-            print(self.var)
             # traiter la partie droite
-            self.liste, self.tmp = outils.test_partie_calculatoire(liste_droite)
+            self.liste, self.tmp_inconnus = outils.test_partie_calculatoire(liste_droite)
 
     @property
 	def var(self):
@@ -33,18 +32,15 @@ class Parsing:
     
     def remplacer(self, tmp_var, tmp_fonction):
 
-        for key, element in enumerate(self.tmp):
+        for key, element in enumerate(self.tmp_inconnus):
             if isinstance(element, list):
                 valeur = element[1]
                 fonction = element[0]
-                if valeur not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$'):
+                if (element[1] not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', element[1])) /
+                    or element[0] not in tmp_fonction.keys():
                    print("Error : variable not defined")
                     return -1
-                if fonction not in tmp_fonction.keys():
-                   print("Error : variable not defined")
-                    return -1
-                tmp = polynome.calcul(tmp_fonction[fonction], valeur)
-                self.tmp[key] = tmp
+                self.tmp[key] = polynome.calcul(tmp_fonction[fonction], valeur)
             elif element not in tmp.values():
                 print("Error : variable not defined")
                 return -1
@@ -74,5 +70,14 @@ class Parsing:
 
     # afficher la matrice sur la sortie standard
     def affiche_matrice(self, liste):
-
-    
+        chaine = ''
+        for element in liste:
+            chaine = '[ '
+            for key, e in enumerate(element):
+                chaine += e + ' '
+                if key != len(element) - 1:
+                    chaine += ', '
+            chaine += ']\n'
+            print(chaine)
+            #print('[', element[0], ',', element[1], ']', sep=' ', end='\n')
+            #chaine = ']\n'
