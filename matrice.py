@@ -51,14 +51,14 @@ def matrice_carree(M):
 
 # fonction qui permet de faire la somme de deux matrices
 def somme_matrice(M1, M2):
-    
+
     n, m = compare_dimensions(M1, M2)
     M = [[0 for j in range(m)] for i in range(n)]# creer une matrice nxm pleine de zéro
- 
+
     for i in range(n):
         for j in range(m):
             M[i][j] = M1[i][j]+M2[i][j]
- 
+
     return M
 
 # fonction qui permet de faire la soustraction de deux matrices
@@ -96,7 +96,7 @@ def multiplication_matrice_reel(M, reel):
 
 # fonction qui permet de extraire d'une matrice d'une autre
 def extraire_matrice(M, ligne, colonne):
-    
+
     n = len(M) - 1
     M1 =[[0 for j in range(n)] for i in range(n)]#creer une matrice nxn pleine de zéro
     for i in range(n):
@@ -158,3 +158,20 @@ def inverser_matrice(M):
         print("Error : Matrix non inversible")
     else:
         return M
+
+# afficher la matrice sur la sortie standard
+def affiche_matrice(self, liste):
+    chaine = ''
+    for element in liste:
+        chaine = '[ '
+        for key, e in enumerate(element):
+            chaine += e + ' '
+            if key != len(element) - 1:
+                chaine += ', '
+        chaine += ']\n'
+        print(chaine)
+
+def traiter_matrice(liste):
+    # effectuer les calculs sur les matrices
+
+    return '0'

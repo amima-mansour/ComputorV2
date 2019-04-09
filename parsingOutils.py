@@ -2,7 +2,7 @@
 
 import re
 import matrice
-import test_nom_de_variable as var
+from test_nom_de_variable import *
 import fonctionPolynomiale as polynome
 import calculs
 
@@ -39,13 +39,13 @@ def indice_parenthese(chaine):
                 else:
                     nbr_parenthese_ouvrante -= 1
             i += 1
-        print('Error : parentheses')
+        print('Error : parentheses\' problem')
         return 0
     except AssertionError:
-        print('Error : parentheses2')
+        print('Error : parentheses\' problem')
         return 0
 
-# transfomer une partie de la chaine de caractere principale en une liste 
+# transfomer une partie de la chaine de caractere principale en une liste
 def test_elementaire(chaine):
 
     liste_finale = []
@@ -59,14 +59,18 @@ def test_elementaire(chaine):
         elif m:
             char = m.group(0)
             liste_intermediaire = element.split(char)
-            liste_finale = liste_finale + liste_intermediaire[0]
-            liste_finale.append(char)
-            liste_finale = liste_finale + liste_intermediaire[1]
+            print(liste_intermediaire)
+            if liste_intermediaire[0] == '':
+                liste_finale.append(element)
+            else:
+                liste_finale.append(liste_intermediaire[0])
+                liste_finale.append(char)
+                liste_finale.append(liste_intermediaire[1])
         else:
             liste_finale.append(element)
     return liste_finale
 
-# transfomer une chaine de caractere en une liste 
+# transfomer une chaine de caractere en une liste.
 def premier_test(chaine):
 
     liste_finale = []
@@ -100,9 +104,9 @@ def convertir_en_complexe(chaine):
     reel = 0
     imaginaire = 0
     if 'i' in chaine :
-        nbr = '1'       
+        nbr = '1'
         if chaine != 'i':
-            nbr = chaine.split('i')[0]; 
+            nbr = chaine.split('i')[0];
         imaginaire = convertir_en_nombre(nbr)
     else:
         reel = convertir_en_nombre(chaine)
@@ -114,35 +118,42 @@ def traitement_nom_de_variable(chaine):
     if chaine == '?':
         return [chaine]
     # test de la variable avec 'i'
-    var.test_complexe(chaine)
+    test_complexe(chaine)
     if '(' in chaine:
         # recuperer dans ce cas le nom de la fonction, de la composition s'il y en a et le nom de l'inconu
-        fonction, composition, inconnu = var.test_fonction(chaine)
-        return [fonction.lower(), composition.lower(), inconnu.lower()]
+        fonction, inconnu = test_fonction(chaine)
+        return [fonction.lower(), inconnu.lower()]
     else:
         # tester le nom de la variable
-        var.test_variable(chaine)
+        test_variable(chaine)
         return [chaine.lower()]
 
 # tester la partie calculatoire
-def test_partie_calculatoire(chaine):
+def test_partie_calculatoire(chaine, nom_var):
 
     # parsing pour mettre cette expression dans une liste
     liste = premier_test(chaine)
-    variables = calculs.variables_inconnues(liste)
-
+    variables = {}
+    print(nom_var)
+    if len(nom_var) == 1:
+        variables = calculs.variables_inconnues(liste)
+    print('variables dans la fonction = {}'.format(variables))
     return liste, variables
 
 # traiter la partie calculatoire
-def traitement_partie_calculatoire(chaine, var):
+def traitement_partie_calculatoire(liste):
+    # traiter la partie calculatoire
 
-    # parsing pour mettre cette expression dans une liste
-    liste = premier_test(chaine)
-    print(liste)
-    # simplification de la liste
-    if len(var) === 3:
-        # 1- fonction polynomiale : mettre sous forme de suite de x en puissance croissante
-        liste = polynome.calcul(liste, var[2])
-    # 2- calcul de tous les termes quand c'est possible sauf les inconnus (calcul ordinaire et complexe, matriciel)
-    variables
-    liste = calculs.calcul(liste)
+    reel, imaginaire, mat = 'null', 'null', 'null'
+    # aucune trace de matrice, pas de complexe
+    # complexe
+    struct = calculs.verifier_structure(liste)
+    print('la structure est {}'.format(struct))
+    if struct == 1:
+        reel, imaginaire = calculs.calcul_complexe(liste)
+    # matrice
+    elif struct == 2:
+        mat = matrice.traiter_matrice(liste)
+    else:
+        reel = calculs.calcul(liste)
+    return reel, imaginaire, mat

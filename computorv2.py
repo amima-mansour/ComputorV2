@@ -1,27 +1,45 @@
 # coding: utf-8
 
 import sys
-import parse
+from parse import *
+from fonctionPolynomiale import *
+from parsingOutils import *
 
 if __name__ == "__main__":
-    var = {}
-    fonction = {}
+    vars = {}
+    fonctions = {}
+    matrices = {}
     chaine = input()
     while (chaine != 'exit'):
-        parse_objet = parse.Parsing(chaine)
-        if parse_objet.remplacer(var, fonction) == 0: # remplacement est fait, reste la partie calculatoire
-            variable = parse_objet.var
+        parse_objet = Parsing(chaine)
+        test = 1
+        print('vars = '.format(vars))
+        if parse_objet.tmp_inconnus:
+            test = parse_objet.remplacer(vars, fonctions) # remplacement est fait, reste la partie calculatoire
+        print('la liste apres remplacement = {}'.format(parse_objet.liste))
+        if test == 0:
+            nom = parse_objet.var
             liste = parse_objet.liste
-            if variable != '?':
+            print('le nom de la fonction : {}, la liste : {}'.format(nom, liste))
+            if nom != '?':
                 # 2 cas possibles : fonction ou variable
-                if len(variable) == 2:
+                if len(nom) == 2:
                     # fonction
-                    fonction[variable[0]] = liste
+                    fonctions[nom[0]] = [nom[1], liste]
+                    print(affiche_polynome(liste))
                 else:
                     # variable
-                    var[variable[0]] = liste
+                    reel, imaginaire, mat = traitement_partie_calculatoire(liste)
+                    print('reel = {}\nimaginaire = {}\nmatrice = {}\n'.format(reel, imaginaire, mat))
+                    if mat != 'null':
+                        matrices[nom[0]] = mat
+                    elif imaginaire != 'null':
+                        vars[nom[0]] = reel + ' + ' + imaginaire + ' * i'
+                    else:
+                        vars[nom[0]] = reel
+                    print(vars[nom[0]])
             else:
-                parse_objet.
+                pass
                 # afficher le calcul sur la sortie standard
-
+        print(vars)
         chaine = input()

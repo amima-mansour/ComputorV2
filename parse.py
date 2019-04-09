@@ -12,7 +12,7 @@ class Parsing:
     4- Sinon la partie gauche est le nom de variable à stocker dans un dictionnaire avec la valeur."""
 
     def __init__(self, chaine):
-        
+
         liste_gauche, liste_droite = outils.equal_number(chaine)
         # permutation des parties gauche et droite dans le cas ou la partie droite = '?'
         if liste_droite and liste_gauche:
@@ -24,60 +24,28 @@ class Parsing:
             # traiter la partie gauche
             self.var = outils.traitement_nom_de_variable(liste_gauche)
             # traiter la partie droite
-            self.liste, self.tmp_inconnus = outils.test_partie_calculatoire(liste_droite)
+            self.liste, self.tmp_inconnus = outils.test_partie_calculatoire(liste_droite, self.var)
+            print('variables inconnues transmises = {}'.format(self.tmp_inconnus))
 
-    @property
-	def var(self):
-		return self.var
-    
     def remplacer(self, tmp_var, tmp_fonction):
+    # chercher les variables inconnues et les remplacer par leur valeurs
 
+        print('la valeur est : {}'.format(tmp_var))
         for key, element in enumerate(self.tmp_inconnus):
             if isinstance(element, list):
                 valeur = element[1]
                 fonction = element[0]
-                if (element[1] not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', element[1])) /
-                    or element[0] not in tmp_fonction.keys():
-                   print("Error : variable not defined")
+                if ((element[1] not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', element[1])) \
+                    or (element[0] not in tmp_fonction.keys())):
+                    print("Error : variable not defined")
                     return -1
-                self.tmp[key] = polynome.calcul(tmp_fonction[fonction], valeur)
-            elif element not in tmp.values():
-                print("Error : variable not defined")
+                self.tmp_inconnus[key] = polynome.calcul(tmp_fonction[fonction], valeur)
+            elif element not in tmp_var.values():
+                print("Error : variable not defined 1")
                 return -1
             else:
-                self.tmp[key] = tmp[element]
+                print('Remplacement => 2')
+                print('coucou remplacement')
+                #self.tmp_inconnus[key] = tmp_var[element]
+                self.liste[key] = tmp_var[element]
         return 0
-    
-    # afficher le polynome sur la sortie standard
-    def affiche_polynome(self, inconnu, variable, liste):
-
-        degree = inconnu + '^0'
-        i = 0
-        chaine = variable + '(' + inconnu + ') = '
-        while len(liste) > 0:
-            # on suppose ici que les puissances sont sous la forme de X^n
-            while degree not in liste:
-                i += 1
-                chaine += '0 * ' + degree
-                degree = inconnu + '^' + str(i)
-            while degree in liste:
-                i += 1
-                index = liste.index(degree)
-                # * se trouve avant le degree
-                # * se trouve apres le degree
-                # * absente regarder le signe de l'index precedent : - ou + ou rien : debut d'expression
-        print(chaine)
-
-    # afficher la matrice sur la sortie standard
-    def affiche_matrice(self, liste):
-        chaine = ''
-        for element in liste:
-            chaine = '[ '
-            for key, e in enumerate(element):
-                chaine += e + ' '
-                if key != len(element) - 1:
-                    chaine += ', '
-            chaine += ']\n'
-            print(chaine)
-            #print('[', element[0], ',', element[1], ']', sep=' ', end='\n')
-            #chaine = ']\n'
