@@ -16,7 +16,8 @@ def calcul_elementaire(liste, char):
 
     while char in liste:
         index = liste.index(char)
-        if index != 0 and index + 1 < len(liste) and re.match(r'[0-9]+',liste[index - 1]) and re.match(r'[0-9]+',liste[index + 1]):
+        if index != 0 and index + 1 < len(liste) and re.match(r'[0-9]+',liste[index - 1]) \
+            and re.match(r'[0-9]+',liste[index + 1]):
             n_1 = nombre(liste[index - 1])
             n_2 = nombre(liste[index + 1])
             if char == '^':
@@ -44,11 +45,14 @@ def variables_inconnues(liste):
     # Cette fonction recuperer les variables inconnues et leur indice
 
     variables = {}
-    print('la liste : {}'.format(liste))
     for element in liste:
+        if element == 'i':
+            continue
         index = liste.index(element)
         if isinstance(element, list):
-            variables[index] = variables_inconnues(element)
+            variables_inter = variables_inconnues(element)
+            if variables_inter != {}:
+                variables[index] = variables_inter
         elif re.match(r'^[a-zA-z]+$', element):
             if index + 1 < len(liste) and isinstance(liste[index + 1], list):
                 # une variable de type f(2)
@@ -70,6 +74,8 @@ def calcul(liste):
     liste = calcul_elementaire(liste, '*')
     liste = calcul_elementaire(liste, '+')
     liste = calcul_elementaire(liste, '-')
+    if not liste:
+        return 'null'
     return liste[0]
 
 
@@ -94,10 +100,37 @@ def calcul_parenthese(liste):
             print("Error : something is wrong")
     return calcul(liste_finale)
 
+def calcul_complexe_elementaire(operateur, nombre):
+    # effectuer des calculs elementaires
+
+    if operateur == '*':
+        return nombre
+    if operator == '/':
+        return 
+    if operator == '^':
+        if nombre % 2 == 0:
+            return '1'
+        else:
+            return -1
+# A modifier ici
 def calcul_complexe(liste):
     # calculer les nombres complexes
 
-    return '0', '0'
+    liste_reel = liste.copy()
+    liste_img = []
+    index_i = []
+    for element in liste:
+        if element = 'i':
+            index_i.append(liste.index(element))
+    for element in index:
+        coeff = 1
+        if index < len(liste) - 1:
+
+            
+
+    reel = '0'
+    img = '0'
+    return reel, img
 
 def verifier_structure(liste):
     # verifier si la liste contient le nombre complexe i, dans ce cas retourne 1

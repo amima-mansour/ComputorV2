@@ -30,6 +30,9 @@ class Parsing:
     def remplacer(self, tmp_var, tmp_fonction):
     # chercher les variables inconnues et les remplacer par leur valeurs
 
+        inconnu = '0'
+        if len(self.var) == 2:
+            inconnu = self.var[1]
         print('la valeur est : {}'.format(tmp_var))
         for key, element in enumerate(self.tmp_inconnus):
             if isinstance(element, list):
@@ -40,12 +43,14 @@ class Parsing:
                     print("Error : variable not defined")
                     return -1
                 self.tmp_inconnus[key] = polynome.calcul(tmp_fonction[fonction], valeur)
-            elif element not in tmp_var.values():
-                print("Error : variable not defined 1")
-                return -1
-            else:
+            elif element in tmp_var.values():
                 print('Remplacement => 2')
                 print('coucou remplacement')
                 #self.tmp_inconnus[key] = tmp_var[element]
                 self.liste[key] = tmp_var[element]
+            elif element == inconnu:
+                pass
+            else:
+                print("Error : variable not defined 1")
+                return -1
         return 0

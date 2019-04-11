@@ -92,26 +92,6 @@ def premier_test(chaine):
             liste_finale = []
     return liste_finale
 
-# convertit une chaine de caractere en un nombre
-def convertir_en_nombre(chaine):
-
-    if '.' in chaine :
-        return float(chaine)
-    return int(chaine)
-
-def convertir_en_complexe(chaine):
-
-    reel = 0
-    imaginaire = 0
-    if 'i' in chaine :
-        nbr = '1'
-        if chaine != 'i':
-            nbr = chaine.split('i')[0];
-        imaginaire = convertir_en_nombre(nbr)
-    else:
-        reel = convertir_en_nombre(chaine)
-    return reel, imaginaire
-
 # traiter le nom de la variable ou de fonction
 def traitement_nom_de_variable(chaine):
 
@@ -128,15 +108,59 @@ def traitement_nom_de_variable(chaine):
         test_variable(chaine)
         return [chaine.lower()]
 
+#  organiser la chaine : chaque element est dans un bloc
+def organiser_chaine(chaine):
+
+    liste_finale = []
+    m = re.search(r'(\*|\^|\/|%|\+|-|i)', chaine)
+    char = m.group(0)
+    liste_inter = chaine.split(char)
+    for element_inter in liste_inter:
+        if element_inter == '':
+            continue
+        if re.match(r'^([0-9]+|[a-zA-Z]+)$', element_inter):
+            liste_finale.append(element_inter)
+        else:
+            liste_finale.extend(organiser_chaine(element_inter))
+        if char == 'i':
+            liste_finale.append('*')
+            liste_finale.append('i')
+        elif liste_inter.index(element_inter) != len(liste_inter) - 1:
+            liste_finale.append(char)
+        else:
+            pass
+    return liste_finale
+
+#  organiser la nouvelle liste pour mieux faire le calcul
+def organiser_liste(liste):
+
+    liste_finale = []
+    for element in liste:
+        if isinstance(element, list):
+            liste_finale.append(organiser_liste(element))
+        elif re.match(r'^([0-9]+|\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
+            liste_finale.append(element)
+        else:
+            liste_finale.extend(organiser_chaine(element))
+    return liste_finale
+
+
+
 # tester la partie calculatoire
 def test_partie_calculatoire(chaine, nom_var):
 
     # parsing pour mettre cette expression dans une liste
     liste = premier_test(chaine)
-    variables = {}
-    print(nom_var)
-    if len(nom_var) == 1:
-        variables = calculs.variables_inconnues(liste)
+    print("liste avant organisation = {}".format(liste))
+    # eliminer les elements vides
+    for element in liste:
+        if not element:
+            liste.remove(element)
+    # chaque nombre et operateur constitue un element tout seul de la liste
+    liste = organiser_liste(liste)
+    print("liste apres organisation = {}".format(liste)) 
+    # chercher les variables inconnues et se trouvant dans l'expression
+    variables = calculs.variables_inconnues(liste)
     print('variables dans la fonction = {}'.format(variables))
     return liste, variables
 
