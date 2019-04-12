@@ -174,7 +174,8 @@ def traitement_partie_calculatoire(liste):
     struct = calculs.verifier_structure(liste)
     print('la structure est {}'.format(struct))
     if struct == 1:
-        reel, imaginaire = calculs.calcul_complexe(liste)
+        imaginaire = calculs.calcul_imaginaire(liste)
+        reel = '0'
     # matrice
     elif struct == 2:
         mat = matrice.traiter_matrice(liste)

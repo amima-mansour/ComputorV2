@@ -82,6 +82,9 @@ def calcul(liste):
 def calcul_parenthese(liste):
     # Cette fonction permet de tester et réorganiser un polynome.
 
+    print("la longueur de la liste avant calcul = {}".format(len(liste)))
+    if len(liste) == 1:
+        return liste[0]
     liste_finale = []
     # l'objectif est de calculer ce qui a dans les parentheses
     for i, element in enumerate(liste):
@@ -100,37 +103,61 @@ def calcul_parenthese(liste):
             print("Error : something is wrong")
     return calcul(liste_finale)
 
-def calcul_complexe_elementaire(operateur, nombre):
-    # effectuer des calculs elementaires
+def trouver_indice_fin(liste, start, pas):
+    # renvoie l'indice de la partie a traiter
 
-    if operateur == '*':
-        return nombre
-    if operator == '/':
-        return 
-    if operator == '^':
-        if nombre % 2 == 0:
-            return '1'
-        else:
-            return -1
-# A modifier ici
-def calcul_complexe(liste):
-    # calculer les nombres complexes
+    fin = start
+    if pas > 0:
+        while fin < len(liste) and liste[fin] != '-' and liste[fin] != '+':
+            fin += pas
+        return fin
+    while fin > -1 and liste[fin] != '-' and liste[fin] != '+':
+        fin += pas
+    return fin + 1
 
-    liste_reel = liste.copy()
-    liste_img = []
-    index_i = []
-    for element in liste:
-        if element = 'i':
-            index_i.append(liste.index(element))
-    for element in index:
-        coeff = 1
-        if index < len(liste) - 1:
+def calcul_complexe_elementaire_droite(liste, start):
+    # effectuer des calculs elementaires en respectant la priorite
 
-            
+    fin = trouver_indice_fin(liste, start, 1)
+    liste_a_traiter = liste[start + 1:fin]
+    print("la fin = {}".format(fin))
+    print("La liste prise = {}".format(liste_a_traiter))
+    liste = liste[:start] + liste[fin:]
+    img = calcul_parenthese(liste_a_traiter)
+    return img, liste
 
-    reel = '0'
-    img = '0'
-    return reel, img
+def calcul_complexe_elementaire_gauche(liste, start):
+    # effectuer des calculs elementaires en respectant la priorite
+
+    fin = trouver_indice_fin(liste, start, -1)
+    liste_a_traiter = liste[fin:start]
+    liste = liste[:fin] + liste[start + 1:]
+    img = calcul_parenthese(liste_a_traiter)
+    return img, liste
+
+def calcul_imaginaire(liste):
+    # retourner la partie imaginaire dans l'expression
+
+    img_total = 0
+    while 'i' in liste:
+        index = liste.index('i')
+        img_droite, img_gauche = 1, 1
+        if index != len(liste) - 1 and liste[index + 1] == '*':
+            img_droite, liste = calcul_complexe_elementaire_droite(liste, index + 1)
+        print("La liste droite = {}".format(liste))
+        index = liste.index('i')
+        if index != 0 and liste[index - 1] == '*':
+            img_gauche, liste = calcul_complexe_elementaire_gauche(liste, index - 1)
+        img = nombre(img_droite * img_gauche)
+        index = liste.index('i')
+        if index != 0 and liste[index - 1] in '-+':
+            print("le nombre img = {}".format(img))
+            if liste[index - 1]  == '-':
+                img *= -1
+            del liste[index]
+            del liste[index - 1]
+        img_total += img
+    return str(img_total)
 
 def verifier_structure(liste):
     # verifier si la liste contient le nombre complexe i, dans ce cas retourne 1
@@ -138,9 +165,9 @@ def verifier_structure(liste):
     # sinon retourne 0
 
     for element in liste:
-        if 'i' in element or element == 'i':
+        if element == 'i':
             return 1
-        elif re.match(r'(^(/+|\^|\*|-|%|\/|[0-9]+)$)', element):
+        elif re.match(r'(^(\+|\^|\*|-|%|\/|[0-9]+)$)', element):
             pass
         else:
             return 2
