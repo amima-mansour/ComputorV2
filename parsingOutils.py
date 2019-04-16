@@ -32,6 +32,7 @@ def indice_parenthese(chaine):
         assert i < longueur and chaine[i] == ')'
         if nbr_parenthese_ouvrante == 0:
             return i
+        i += 1
         while i < longueur:
             if chaine[i] == ')':
                 if nbr_parenthese_ouvrante == 0:
@@ -42,7 +43,7 @@ def indice_parenthese(chaine):
         print('Error : parentheses\' problem')
         return 0
     except AssertionError:
-        print('Error : parentheses\' problem')
+        print('Error : parentheses\' problem2')
         return 0
 
 # transfomer une partie de la chaine de caractere principale en une liste
@@ -59,7 +60,6 @@ def test_elementaire(chaine):
         elif m:
             char = m.group(0)
             liste_intermediaire = element.split(char)
-            print(liste_intermediaire)
             if liste_intermediaire[0] == '':
                 liste_finale.append(element)
             else:
@@ -85,7 +85,7 @@ def premier_test(chaine):
         indice_2 = indice_parenthese(nouvelle_chaine)
         if indice_2 > 0:
             liste_finale.append(premier_test(nouvelle_chaine[:indice_2].strip()))
-            indice_2 += 2
+            indice_2 += 1
             if indice_2 < len(nouvelle_chaine):
                 liste_finale = liste_finale + premier_test(nouvelle_chaine[indice_2:].strip())
         else:
@@ -112,13 +112,14 @@ def traitement_nom_de_variable(chaine):
 def organiser_chaine(chaine):
 
     liste_finale = []
+    print("la chaine avant : {}".format(chaine))
     m = re.search(r'(\*|\^|\/|%|\+|-|i)', chaine)
     char = m.group(0)
     liste_inter = chaine.split(char)
     for element_inter in liste_inter:
         if element_inter == '':
             continue
-        if re.match(r'^([0-9]+|[a-zA-Z]+)$', element_inter):
+        if re.match(r'^([0-9]+|[a-zA-Z]+|i)$', element_inter):
             liste_finale.append(element_inter)
         else:
             liste_finale.extend(organiser_chaine(element_inter))
@@ -141,7 +142,23 @@ def organiser_liste(liste):
         elif re.match(r'^([0-9]+|\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
             liste_finale.append(element)
         else:
-            liste_finale.extend(organiser_chaine(element))
+            while element:
+                print("element {}\nliste finale {}".format(element, liste_finale))
+                m = re.search(r"\*|\/|\+|-|%|\^", element)
+                if m:
+                    char = m.group(0)
+                    index_char = element.index(char)
+                    if index_char != 0:
+                        liste_finale.append(''.join(element[:index_char]))
+                    liste_finale.append(element[index_char])
+                    if index_char != len(element) - 1:
+                        element = ''.join(element[index_char + 1:])
+                else:
+                    if element != 'i':
+                        liste_finale.extend(organiser_chaine(element))
+                    else:
+                        liste_finale.append('i')
+                    element = '' 
     return liste_finale
 
 
@@ -172,9 +189,8 @@ def traitement_partie_calculatoire(liste):
     # aucune trace de matrice, pas de complexe
     # complexe
     struct = calculs.verifier_structure(liste)
-    print('la structure est {}'.format(struct))
     if struct == 1:
-        imaginaire = calculs.calcul_imaginaire(liste)
+        imaginaire, reel = calculs.calcul_imaginaire(liste)
         reel = '0'
     # matrice
     elif struct == 2:

@@ -33,8 +33,7 @@ class Parsing:
         inconnu = '0'
         if len(self.var) == 2:
             inconnu = self.var[1]
-        print('la valeur est : {}'.format(tmp_var))
-        for key, element in enumerate(self.tmp_inconnus):
+        for key, element in self.tmp_inconnus.items():
             if isinstance(element, list):
                 valeur = element[1]
                 fonction = element[0]
@@ -43,11 +42,11 @@ class Parsing:
                     print("Error : variable not defined")
                     return -1
                 self.tmp_inconnus[key] = polynome.calcul(tmp_fonction[fonction], valeur)
-            elif element in tmp_var.values():
-                print('Remplacement => 2')
-                print('coucou remplacement')
-                #self.tmp_inconnus[key] = tmp_var[element]
-                self.liste[key] = tmp_var[element]
+            elif element in tmp_var.keys():
+                liste = self.liste[:key]
+                liste += tmp_var[element].split()
+                liste += self.liste[key + 1:]
+                self.liste = liste
             elif element == inconnu:
                 pass
             else:
