@@ -46,15 +46,13 @@ def calcul_elementaire(liste, char):
 
 def calcul_elementaire_complexe(char, test):
     # Cette fonction permet de faire un calcul elementaire complexe.
-    
+
     nbr = 1
     if (char == '*' and test) or (char == '\\' and not test):
         return -1
     if (char == '*' and not test) or (char == '\\' and test):
         return 1
     return 1
-    
-
 
 def variables_inconnues(liste):
     # Cette fonction recuperer les variables inconnues et leur indice
@@ -68,7 +66,8 @@ def variables_inconnues(liste):
             variables_inter = variables_inconnues(element)
             if variables_inter != {}:
                 variables[index] = variables_inter
-        elif re.match(r'^[a-zA-z]+$', element):
+        elif re.match(r'^[A-Za-z]+$', element):
+            print("matching est {}".format(re.match(r'^[A-Za-z]+$', element)))
             if index + 1 < len(liste) and isinstance(liste[index + 1], list):
                 # une variable de type f(2)
                 variables[index] = [element.lower() , liste[index + 1]]
@@ -134,15 +133,31 @@ def calcul_complexe_elementaire_droite(liste, start):
 
     fin = trouver_indice_fin(liste, start, 1)
     liste_a_traiter = liste[start + 1:fin]
+    char = liste[start]
     liste = liste[:start] + liste[fin:]
+    print("liste start {}".format(char))
     test = True
+    resultat = 1
     while 'i' in liste_a_traiter:
+        print("la liste a traiter est {}".format(liste_a_traiter))
         index = liste_a_traiter.index('i')
-        nbr = calcul_parenthese(liste_a_traiter[:index - 1])
-        resultat = calcul_elementaire_complexe(liste_a_traiter[index - 1], test)
+        print("index de i est {}".format(index))
+        liste_a_traiter[index] = '1'
+        if index == 0:
+            resultat *= calcul_elementaire_complexe(char, test)
+        else:
+            resultat *= calcul_elementaire_complexe(liste_a_traiter[index - 1], test)
+        print("resultat complexe : {}".format(resultat))
         test = not test
-        
-    return reel, img, liste
+    print("liste a traiter finale : {}".format(liste_a_traiter))
+    nbr = resultat * nombre(calcul_parenthese(liste_a_traiter))
+    print("le nbr final est {}".format(nbr))
+    imag, reel = 0, 0
+    if test:
+        imag = nbr
+    else:
+        reel = nbr
+    return imag, reel, liste
 
 def calcul_complexe_elementaire_gauche(liste, start):
     # effectuer des calculs elementaires en respectant la priorite
@@ -156,22 +171,52 @@ def calcul_complexe_elementaire_gauche(liste, start):
         img = calcul_parenthese(liste_a_traiter)
     return img, liste
 
+def puissance_complexe(nbr):
+    # puissance complexe
+
+    test = True
+    if nbr / 2:
+        test = False
+    return test, (-1) ** (nbr / 2)
+
 def calcul_imaginaire(liste):
     # retourner la partie imaginaire dans l'expression
 
     img_total = 0
+    reel_total = 0
     reel = 0
+    img = 0
     while 'i' in liste:
         index = liste.index('i')
-        img_droite, img_gauche = '1', '1'
-        if index != len(liste) - 1 and liste[index + 1] == '*':
-            img_droite, liste = calcul_complexe_elementaire_droite(liste, index + 1)
-        index = liste.index('i')
+        img_droite, img_gauche, reel_droite = 1, 1, 1
         if index != 0 and liste[index - 1] == '*':
             img_gauche, liste = calcul_complexe_elementaire_gauche(liste, index - 1)
-        img = nombre(img_droite) * nombre(img_gauche)
+        if index != len(liste) - 1 and liste[index + 1] == '^':
+            test, nbr = puissance_complexe(nombre(liste[index + 2]))
+            if test:
+                liste[index + 1] = '*'
+                liste[index + 2] = str(nbr)
+            else:
+                liste[index] = str(nbr)
+                del liste[index + 1]
+                del liste[index + 1]
+        print("la liste dans le calcul imaginaire {}".format(liste))
+        if 'i' not in liste:
+            continue
         index = liste.index('i')
-        print("la liste a la fin = {}".format(liste))
+        if index != len(liste) - 1 and liste[index + 1] == '*':
+            img_droite, reel_droite, liste = calcul_complexe_elementaire_droite(liste, index + 1)
+        print("index de i dans la calcul imaginaire {}".format(index))
+        #print("reel droite = {}\nimag droite = {}\nimag gauche = {}".format(reel_droite, img_droite, img_gauche))
+        if img_droite == 0 or img_gauche == 0:
+            if img_gauche != 0:
+                reel = reel_droite * nombre(img_gauche)
+                print("le reel est {}".format(reel))
+            else:
+                reel = 1
+        else:
+            img = img_droite * nombre(img_gauche)
+        index = liste.index('i')
         if index != 0 and liste[index - 1] in '-+':
             print("le nombre img = {}".format(img))
             if liste[index - 1]  == '-':
@@ -181,8 +226,10 @@ def calcul_imaginaire(liste):
         else:
             del liste[index]
         img_total += img
-        
-    return str(img_total), reel
+        reel_total += reel
+        img = 0
+        reel = 0
+    return str(img_total), str(reel_total)
 
 def verifier_structure(liste):
     # verifier si la liste contient le nombre complexe i, dans ce cas retourne 1

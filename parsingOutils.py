@@ -43,7 +43,7 @@ def indice_parenthese(chaine):
         print('Error : parentheses\' problem')
         return 0
     except AssertionError:
-        print('Error : parentheses\' problem2')
+        print('Error : parentheses\' problem')
         return 0
 
 # transfomer une partie de la chaine de caractere principale en une liste
@@ -175,7 +175,7 @@ def test_partie_calculatoire(chaine, nom_var):
             liste.remove(element)
     # chaque nombre et operateur constitue un element tout seul de la liste
     liste = organiser_liste(liste)
-    print("liste apres organisation = {}".format(liste)) 
+    print("liste apres organisation = {}".format(liste))
     # chercher les variables inconnues et se trouvant dans l'expression
     variables = calculs.variables_inconnues(liste)
     print('variables dans la fonction = {}'.format(variables))
@@ -189,6 +189,7 @@ def traitement_partie_calculatoire(liste):
     # aucune trace de matrice, pas de complexe
     # complexe
     struct = calculs.verifier_structure(liste)
+    print("la structure est egale a {}".format(struct))
     if struct == 1:
         imaginaire, reel = calculs.calcul_imaginaire(liste)
         reel = '0'
