@@ -5,6 +5,7 @@ import matrice
 from test_nom_de_variable import *
 import fonctionPolynomiale as polynome
 import calculs
+import complexe
 
 # verifier l'existence d'un seul = dans la chaine
 def equal_number(chaine):
@@ -95,6 +96,7 @@ def premier_test(chaine):
 # traiter le nom de la variable ou de fonction
 def traitement_nom_de_variable(chaine):
 
+    print('la chaine est = {}'.format(chaine))
     if chaine == '?':
         return [chaine]
     # test de la variable avec 'i'
@@ -168,34 +170,31 @@ def test_partie_calculatoire(chaine, nom_var):
 
     # parsing pour mettre cette expression dans une liste
     liste = premier_test(chaine)
-    print("liste avant organisation = {}".format(liste))
     # eliminer les elements vides
     for element in liste:
         if not element:
             liste.remove(element)
     # chaque nombre et operateur constitue un element tout seul de la liste
     liste = organiser_liste(liste)
-    print("liste apres organisation = {}".format(liste))
     # chercher les variables inconnues et se trouvant dans l'expression
     variables = calculs.variables_inconnues(liste)
-    print('variables dans la fonction = {}'.format(variables))
     return liste, variables
 
 # traiter la partie calculatoire
 def traitement_partie_calculatoire(liste):
     # traiter la partie calculatoire
 
-    reel, imaginaire, mat = 'null', 'null', 'null'
+    reel, img, mat = 0, 0, 'null'
     # aucune trace de matrice, pas de complexe
     # complexe
     struct = calculs.verifier_structure(liste)
     print("la structure est egale a {}".format(struct))
     if struct == 1:
-        imaginaire, reel = calculs.calcul_imaginaire(liste)
-        reel = '0'
-    # matrice
+        img, reel, liste = complexe.calcul_imaginaire(liste)
+        print("type reel = {} et reel = {}".format(type(reel), reel))
+        reel = str(calculs.nombre(calculs.calcul_global(liste)) + calculs.nombre(reel))
     elif struct == 2:
         mat = matrice.traiter_matrice(liste)
     else:
-        reel = calculs.calcul(liste)
-    return reel, imaginaire, mat
+        reel = calculs.calcul_global(liste)
+    return reel, img, mat

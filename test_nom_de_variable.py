@@ -1,4 +1,5 @@
 # coding: utf-8
+
 import re
 
 # tester si le nom de la variable est different de i
