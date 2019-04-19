@@ -112,8 +112,8 @@ def verifier_structure(liste):
     for element in liste:
         if element == 'i':
             return 1
-        elif isinstance(element, list) or re.match(r'(^(\+|\^|\*|-|%|\/|[0-9]+)$)', element):
-            pass
+        elif isinstance(element, list) or re.match(r'(^(\+|\^|\*|-|%|\/|[0-9]+(\.[0-9]+)?)$)', element):
+            continue
         else:
             return 2
     return 0

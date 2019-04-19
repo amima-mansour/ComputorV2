@@ -18,14 +18,17 @@ class Parsing:
         if liste_droite and liste_gauche:
             liste_droite = liste_droite.strip()
             liste_gauche = liste_gauche.strip()
-            print("la liste droite = {}\nla liste gauche = {}".format(liste_droite, liste_gauche))
             if re.match(r'( )?\?( )?', liste_droite):
                 liste_droite = liste_gauche
                 liste_gauche = '?'
             # traiter la partie gauche
             self.var = outils.traitement_nom_de_variable(liste_gauche)
             # traiter la partie droite
-            self.liste, self.tmp_inconnus = outils.test_partie_calculatoire(liste_droite, self.var)
+            if '[' in liste_droite:
+                self.liste = outils.traitement_matrice(liste_droite)
+                print(self.liste)
+            else:
+                self.liste, self.tmp_inconnus = outils.test_partie_calculatoire(liste_droite, self.var)            
             print('variables inconnues transmises = {}'.format(self.tmp_inconnus))
 
     def remplacer(self, tmp_var, tmp_fonction):

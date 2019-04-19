@@ -19,32 +19,35 @@ def equal_number(chaine):
     else:
         return liste[0], liste[1]
 
-# trouver l'indice de la parenthese fermante
-def indice_parenthese(chaine):
+# trouver l'indice de du caractere fermant char2
+def indice_caractere(chaine, char1, char2):
 
     i = 0
-    nbr_parenthese_ouvrante = 0
+    nbr_caractere_ouvrant = 0
     longueur = len(chaine)
-    while i < longueur and chaine[i] != ')':
-        if chaine[i] == '(':
-            nbr_parenthese_ouvrante += 1
+    while i < longueur and chaine[i] != char2:
+        if chaine[i] == char1:
+            nbr_caractere_ouvrant += 1
         i += 1
     try:
-        assert i < longueur and chaine[i] == ')'
-        if nbr_parenthese_ouvrante == 0:
+        assert i < longueur and chaine[i] == char2
+        if nbr_caractere_ouvrant == 0:
             return i
-        i += 1
+        print("le i initial = {}".format(i))
+        #i += 1
+        print("nbr_caractere ouvrant = {}".format(nbr_caractere_ouvrant))
         while i < longueur:
-            if chaine[i] == ')':
-                if nbr_parenthese_ouvrante == 0:
+            if chaine[i] == char2:
+                print("i apres = {}".format(i))
+                if nbr_caractere_ouvrant == 0:
                     return i
                 else:
-                    nbr_parenthese_ouvrante -= 1
+                    nbr_caractere_ouvrant -= 1
             i += 1
-        print('Error : parentheses\' problem')
+        print('Error : brackets\' problem')
         return 0
     except AssertionError:
-        print('Error : parentheses\' problem')
+        print('Error : brackets\' problem')
         return 0
 
 # transfomer une partie de la chaine de caractere principale en une liste
@@ -83,7 +86,7 @@ def premier_test(chaine):
             liste_finale = liste_finale + test_elementaire(chaine[:indice_1].strip())
         indice_1 += 1
         nouvelle_chaine = chaine[indice_1:].strip()
-        indice_2 = indice_parenthese(nouvelle_chaine)
+        indice_2 = indice_caractere(nouvelle_chaine, ')', '(')
         if indice_2 > 0:
             liste_finale.append(premier_test(nouvelle_chaine[:indice_2].strip()))
             indice_2 += 1
@@ -141,7 +144,7 @@ def organiser_liste(liste):
     for element in liste:
         if isinstance(element, list):
             liste_finale.append(organiser_liste(element))
-        elif re.match(r'^([0-9]+|\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
+        elif re.match(r'^([0-9]+(\.[0-9]+)?|\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
             liste_finale.append(element)
         else:
             while element:
@@ -198,3 +201,34 @@ def traitement_partie_calculatoire(liste):
     else:
         reel = calculs.calcul_global(liste)
     return reel, img, mat
+
+# traiter une chaine de liaison entre deux matrices
+def traitement_liaison(chaine):
+
+    liste = []
+    for element in chaine:
+        m = re.search(r'\*|\+|\/|-|%', chaine)
+        char = m.group(0)
+        index = chaine.index(char)
+        if index != 0:
+            liste.append(chaine[:index].strip())
+        liste.append(char)
+        chaine = chaine[index + 1:].strip()
+    if chaine:
+        liste.append(chaine)
+    return liste
+
+# traiter les matrices possibles
+def traitement_matrice(chaine):
+
+    liste = []
+    while '[' in chaine:
+        index = chaine.index('[')
+        fin = indice_caractere(chaine, '[', ']')
+        if index != 0:
+            liste.extend(traitement_liaison(chaine[:index].strip()))
+        liste.append(matrice.matrice_parsing(chaine[index:fin + 1].strip()))
+        chaine = chaine[fin + 1:].strip()
+    if chaine != '':
+        liste.append(chaine)
+    return liste
