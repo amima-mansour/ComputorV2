@@ -26,10 +26,9 @@ class Parsing:
             # traiter la partie droite
             if '[' in liste_droite:
                 self.liste = outils.traitement_matrice(liste_droite)
-                print(self.liste)
+                self.tmp_inconnus = {}
             else:
-                self.liste, self.tmp_inconnus = outils.test_partie_calculatoire(liste_droite, self.var)            
-            print('variables inconnues transmises = {}'.format(self.tmp_inconnus))
+                self.liste, self.tmp_inconnus = outils.test_partie_calculatoire(liste_droite, self.var)
 
     def remplacer(self, tmp_var, tmp_fonction):
     # chercher les variables inconnues et les remplacer par leur valeurs

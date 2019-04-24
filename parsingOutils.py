@@ -23,22 +23,22 @@ def equal_number(chaine):
 def indice_caractere(chaine, char1, char2):
 
     i = 0
-    nbr_caractere_ouvrant = 0
+    nbr_caractere_ouvrant = 1
     longueur = len(chaine)
-    while i < longueur and chaine[i] != char2:
+    while i < longueur:
         if chaine[i] == char1:
             nbr_caractere_ouvrant += 1
+        if chaine[i] == char2:
+            nbr_caractere_ouvrant -= 1
+        if nbr_caractere_ouvrant == 0:
+            break
         i += 1
     try:
-        assert i < longueur and chaine[i] == char2
+        assert nbr_caractere_ouvrant == 0 or i < longueur and chaine[i] == char2
         if nbr_caractere_ouvrant == 0:
             return i
-        print("le i initial = {}".format(i))
-        #i += 1
-        print("nbr_caractere ouvrant = {}".format(nbr_caractere_ouvrant))
         while i < longueur:
             if chaine[i] == char2:
-                print("i apres = {}".format(i))
                 if nbr_caractere_ouvrant == 0:
                     return i
                 else:
@@ -99,7 +99,6 @@ def premier_test(chaine):
 # traiter le nom de la variable ou de fonction
 def traitement_nom_de_variable(chaine):
 
-    print('la chaine est = {}'.format(chaine))
     if chaine == '?':
         return [chaine]
     # test de la variable avec 'i'
@@ -117,7 +116,6 @@ def traitement_nom_de_variable(chaine):
 def organiser_chaine(chaine):
 
     liste_finale = []
-    print("la chaine avant : {}".format(chaine))
     m = re.search(r'(\*|\^|\/|%|\+|-|i)', chaine)
     char = m.group(0)
     liste_inter = chaine.split(char)
@@ -148,7 +146,6 @@ def organiser_liste(liste):
             liste_finale.append(element)
         else:
             while element:
-                print("element {}\nliste finale {}".format(element, liste_finale))
                 m = re.search(r"\*|\/|\+|-|%|\^", element)
                 if m:
                     char = m.group(0)
@@ -163,10 +160,8 @@ def organiser_liste(liste):
                         liste_finale.extend(organiser_chaine(element))
                     else:
                         liste_finale.append('i')
-                    element = '' 
+                    element = ''
     return liste_finale
-
-
 
 # tester la partie calculatoire
 def test_partie_calculatoire(chaine, nom_var):
@@ -197,7 +192,7 @@ def traitement_partie_calculatoire(liste):
         print("type reel = {} et reel = {}".format(type(reel), reel))
         reel = str(calculs.nombre(calculs.calcul_global(liste)) + calculs.nombre(reel))
     elif struct == 2:
-        mat = matrice.traiter_matrice(liste)
+        mat = liste[0]
     else:
         reel = calculs.calcul_global(liste)
     return reel, img, mat
@@ -224,11 +219,12 @@ def traitement_matrice(chaine):
     liste = []
     while '[' in chaine:
         index = chaine.index('[')
-        fin = indice_caractere(chaine, '[', ']')
+        fin = indice_caractere(chaine[1:].strip(), '[', ']')
         if index != 0:
             liste.extend(traitement_liaison(chaine[:index].strip()))
-        liste.append(matrice.matrice_parsing(chaine[index:fin + 1].strip()))
-        chaine = chaine[fin + 1:].strip()
+        liste.append(matrice.matrice_parsing(chaine[index + 1:fin + 1].strip()))
+        if fin < len(chaine) - 1:
+            chaine = chaine[fin + 2:].strip()
     if chaine != '':
         liste.append(chaine)
     return liste

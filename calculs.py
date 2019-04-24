@@ -89,10 +89,10 @@ def calcul_global(liste):
     # l'objectif est de calculer ce qui a dans les parentheses
     for i, element in enumerate(liste):
         if isinstance(element, list):
-            liste_finale.append(calcul_parenthese(element))
+            liste_finale.append(calcul_global(element))
         elif re.match('^[a-zA-Z]+$', element) and i  + 1 != len(liste) and isinstance(liste[i + 1], list):
             liste_finale.append(element)
-            liste_finale.append(calcul_parenthese(liste[i + 1]))
+            liste_finale.append(calcul_global(liste[i + 1]))
         elif re.match(r'^(\*|\+|\^|-|\/|%)$', element) or re.match('^[a-zA-Z]+$', element):
             liste_finale.append(element)
         elif re.match(r'(-)?[0-9]+(\.[0-9]+)?', element):
@@ -108,12 +108,13 @@ def verifier_structure(liste):
     # si la liste contient une matice, elle retourne 2
     # sinon retourne 0
 
-    print('la liste dans le structure {}'.format(liste))
     for element in liste:
         if element == 'i':
             return 1
-        elif isinstance(element, list) or re.match(r'(^(\+|\^|\*|-|%|\/|[0-9]+(\.[0-9]+)?)$)', element):
-            continue
-        else:
+        elif isinstance(element, list) and ('+' not in element and '-' not in element and '*' not in element and '^' not in element and '/' not in element and '%' not in element):
             return 2
+        #elif isinstance(element, list) or re.match(r'(^(\+|\^|\*|-|%|\/|[0-9]+(\.[0-9]+)?)$)', element):
+        #    continue
+        else:
+            continue
     return 0

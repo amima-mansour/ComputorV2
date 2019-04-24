@@ -33,7 +33,8 @@ if __name__ == "__main__":
                         vars[nom[0]] = reel
                 if mat != 'null':
                     matrice.affiche_matrice(mat)
+                    vars[nom[0]] = mat
                 else:
                     print(vars[nom[0]])
-        print(vars)
+        print("les vars a printer sont {}".format(vars))
         chaine = input()

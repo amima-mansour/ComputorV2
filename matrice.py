@@ -1,16 +1,19 @@
 # coding: utf-8
 
+import calculs
+
 # fonction qui permet de verifier retourner une matrice sous forme de liste
 def matrice_parsing(chaine):
 
     matrice = []
     liste = chaine.split(';')
     for element in liste:
+        element = element[1:len(element) - 1]
         liste_temp = []
         element_tmp = element.split(',')
-        liste_temp.append(int(element_tmp[0]))
-        liste_temp.append(int(element_tmp[1]))
-        matrice.append = liste_temp
+        liste_temp.append(calculs.nombre(element_tmp[0]))
+        liste_temp.append(calculs.nombre(element_tmp[1]))
+        matrice.append(liste_temp)
     return matrice
 
 # fonction qui permet de verifier que les dimensions de deux matrices sont egales
@@ -160,18 +163,18 @@ def inverser_matrice(M):
         return M
 
 # afficher la matrice sur la sortie standard
-def affiche_matrice(self, liste):
+def affiche_matrice(liste):
+
     chaine = ''
+    i = 1
     for element in liste:
-        chaine = '[ '
+        chaine += '[ '
         for key, e in enumerate(element):
-            chaine += e + ' '
+            chaine += str(e) + ' '
             if key != len(element) - 1:
                 chaine += ', '
-        chaine += ']\n'
-        print(chaine)
-
-def traiter_matrice(liste):
-    # effectuer les calculs sur les matrices
-
-    return '0'
+        chaine += ']'
+        if i != len(liste):
+            chaine += '\n'
+        i += 1
+    print(chaine)
