@@ -220,10 +220,8 @@ def traitement_matrice(chaine):
     liste = []
     while '[' in chaine:
         index = chaine.index('[')
-        print('index a envoyer {}'.format(index))
         fin = indice_caractere(chaine[index + 1:].strip(), '[', ']') + index
         if index != 0:
-            #liste.extend(traitement_liaison(chaine[:index].strip()))
             liste.extend(chaine[:index].strip().split())
         liste.append(matrice.matrice_parsing(chaine[index + 1:fin + 1].strip()))
         if fin < len(chaine) - 1:

@@ -6,16 +6,15 @@ import re
 # fonction qui permet de verifier retourner une matrice sous forme de liste
 def matrice_parsing(chaine):
 
-    print("la chaine a transformer {}".format(chaine))
     matrice = []
     liste = chaine.split(';')
     for element in liste:
         element = element[1:len(element) - 1]
-        liste_temp = []
+        liste_tmp = []
         element_tmp = element.split(',')
-        liste_temp.append(calculs.nombre(element_tmp[0]))
-        liste_temp.append(calculs.nombre(element_tmp[1]))
-        matrice.append(liste_temp)
+        for el in element_tmp:
+            liste_tmp.append(calculs.nombre(el))
+        matrice.append(liste_tmp)
     return matrice
 
 # fonction qui permet de verifier que les dimensions de deux matrices sont egales
@@ -38,7 +37,7 @@ def dimensions_multiplication(M1, M2):
     try:
         assert m == len(M2)
     except:
-        print("Erreur Matrice dimensions : Multiplication of the 2 Matrices is impossible")
+        print("Erreur Matrice dimensions : Multiplication des 2 Matrices impossible")
     else:
         return m
 
@@ -105,15 +104,15 @@ def extraire_matrice(M, ligne, colonne):
 
     n = len(M) - 1
     M1 =[[0 for j in range(n)] for i in range(n)]#creer une matrice nxn pleine de zéro
-    for i in range(n):
-        k = i
-        if i == ligne:
-            k = i + 1
-        for j in range(n):
-            e = j
-            if i == colonne:
-                e = j + 1
-            M1[i][j] = M[k][e]
+    k = 0
+    for i in range(n + 1):
+        if i != ligne: 
+            l = 0
+            for j in range(n + 1):
+                if j != colonne:
+                    M1[k][l] = M[i][j]
+                    l += 1
+            k += 1
     return M1
 
 
@@ -125,28 +124,32 @@ def determinant_matrice_2(M):
 def determinant_matrice(M):
 
     n = matrice_carree(M)
+    if n == 1:
+        return M[0][0]
     if n == 2:
         return determinant_matrice_2(M)
     det = 0
     coeff = 1
     for i in range(n):
-        M1 = extraire_matrice(M, i)
-        det += coeff * M[0][i] * determinant_matrice(extraire_matrice(M1, i, 0))
+        det += coeff * M[i][0] * determinant_matrice(extraire_matrice(M, i, 0))
         coeff *= -1
     return det
 
 # fonction qui permet de determiner la comatrice
 def comatrice(M):
+
     n = len(M)
     m = len(M[0])
     comM =[[0 for j in range(n)] for i in range(m)]#creer une matrice nxn pleine de zéro
     for i in range(n):
         for j in range(m):
-            comM[i][j] = -1 ** (i + j) * determinant_matrice(extraire_matrice(M, i, j))
+            coeff = (-1) ** (i + j)
+            comM[i][j] = coeff * determinant_matrice(extraire_matrice(M, i, j))
     return comM
 
 # fonction qui permet de determiner la transpose d'une matrice
 def transpose(M):
+
     n = len(M)
     m = len(M[0])
     transM =[[0 for j in range(n)] for i in range(m)]#creer une matrice nxn pleine de zéro
@@ -157,17 +160,26 @@ def transpose(M):
 
 # fonction qui permet d'inverser une matrice
 def inverser_matrice(M):
-    try:
-        det = determinant_matrice(M)
+
+    det = determinant_matrice(M)
+    if det != 0:
         M = multiplication_matrice_reel(transpose(comatrice(M)), 1 / det)
-    except:
-        print("Error : Matrix non inversible")
-    else:
         return M
+    else:
+        print("Erreur : Matrice non inversibles")
 
 # traiter la liste des matrices suivant les operations
 def traiter(liste):
 
+    if liste[0] == 'det(':
+        return determinant_matrice(liste[1])
+    if liste[0] == 'inv(':
+        print("la liste et matrice = {}".format(liste[1]))
+        return inverser_matrice(liste[1]) 
+    if liste[0] == 'com(':
+        return comatrice(liste[1])
+    if liste[0] == 'trans(':
+        return transpose(liste[1])
     mat = liste[0]
     i = 1
     while i < len(liste):

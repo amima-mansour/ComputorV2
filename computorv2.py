@@ -31,10 +31,13 @@ if __name__ == "__main__":
                         vars[nom[0]] = reel + ' + ' + imaginaire + ' * i'
                     else:
                         vars[nom[0]] = reel
-                if mat != 'null':
+                if mat != 'null' and isinstance(mat, list):
                     matrice.affiche_matrice(mat)
-                    vars[nom[0]] = mat
+                elif imaginaire != 0:
+                    print('{} + {} * i'.format(reel, imaginaire))
+                elif reel != 0:
+                    print(reel)
                 else:
-                    print(vars[nom[0]])
+                    print(mat)
         print("les vars a printer sont {}".format(vars))
         chaine = input()
