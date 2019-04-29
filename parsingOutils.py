@@ -192,7 +192,8 @@ def traitement_partie_calculatoire(liste):
         print("type reel = {} et reel = {}".format(type(reel), reel))
         reel = str(calculs.nombre(calculs.calcul_global(liste)) + calculs.nombre(reel))
     elif struct == 2:
-        mat = liste[0]
+        mat = matrice.traiter(liste)
+        print("la mat {}".format(mat))
     else:
         reel = calculs.calcul_global(liste)
     return reel, img, mat
@@ -219,12 +220,14 @@ def traitement_matrice(chaine):
     liste = []
     while '[' in chaine:
         index = chaine.index('[')
-        fin = indice_caractere(chaine[1:].strip(), '[', ']')
+        print('index a envoyer {}'.format(index))
+        fin = indice_caractere(chaine[index + 1:].strip(), '[', ']') + index
         if index != 0:
-            liste.extend(traitement_liaison(chaine[:index].strip()))
+            #liste.extend(traitement_liaison(chaine[:index].strip()))
+            liste.extend(chaine[:index].strip().split())
         liste.append(matrice.matrice_parsing(chaine[index + 1:fin + 1].strip()))
         if fin < len(chaine) - 1:
             chaine = chaine[fin + 2:].strip()
-    if chaine != '':
-        liste.append(chaine)
+    if chaine != '' and chaine != ' ':
+        liste.extend(chaine.split())
     return liste

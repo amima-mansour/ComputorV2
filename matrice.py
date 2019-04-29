@@ -1,10 +1,12 @@
 # coding: utf-8
 
 import calculs
+import re
 
 # fonction qui permet de verifier retourner une matrice sous forme de liste
 def matrice_parsing(chaine):
 
+    print("la chaine a transformer {}".format(chaine))
     matrice = []
     liste = chaine.split(';')
     for element in liste:
@@ -53,7 +55,7 @@ def matrice_carree(M):
 
 
 # fonction qui permet de faire la somme de deux matrices
-def somme_matrice(M1, M2):
+def addition_matrice(M1, M2):
 
     n, m = compare_dimensions(M1, M2)
     M = [[0 for j in range(m)] for i in range(n)]# creer une matrice nxm pleine de zéro
@@ -90,11 +92,12 @@ def multiplication_matrice(M1, M2):
 # fonction qui permet de faire la multiplication d'une matrice par un reel
 def multiplication_matrice_reel(M, reel):
 
+    print("la matrice M = {} le reel = {}".format(M, reel))
     n = len(M) # nombre de lignes de la matrice
     m = len(M[0]) # le nombre de colonnes de la matrice
     for i in range(n):
         for j in range(m):
-            M[i][j] *= reel
+            M[i][j] = reel *  M[i][j]
     return M
 
 # fonction qui permet de extraire d'une matrice d'une autre
@@ -161,6 +164,34 @@ def inverser_matrice(M):
         print("Error : Matrix non inversible")
     else:
         return M
+
+# traiter la liste des matrices suivant les operations
+def traiter(liste):
+
+    mat = liste[0]
+    i = 1
+    while i < len(liste):
+        if '+' in liste[i]:
+            mat = addition_matrice(mat, liste[i + 1])
+        elif '-' in liste[i]:
+            mat = soustraction_matrice(mat, liste[i + 1])
+        elif '*' in liste[i]:
+            if isinstance(mat, list) and isinstance(liste[i + 1], list):
+                mat = multiplication_matrice(mat, liste[i + 1])
+            else:
+                if isinstance(mat, list):
+                    nbr = liste[i + 1]
+                else:
+                    nbr = mat
+                    mat = liste[i + 1]
+                mat = multiplication_matrice_reel(mat, calculs.nombre(nbr))
+        else:
+            pass
+        i += 1
+    print("la matrice avant envoi {}".format(mat))
+    return mat
+
+
 
 # afficher la matrice sur la sortie standard
 def affiche_matrice(liste):
