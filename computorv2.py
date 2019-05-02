@@ -6,7 +6,7 @@ from fonctionPolynomiale import *
 from parsingOutils import *
 
 if __name__ == "__main__":
-    vars = {}
+    variables = {}
     fonctions = {}
     matrices = {}
     chaine = input()
@@ -14,13 +14,14 @@ if __name__ == "__main__":
         parse_objet = Parsing(chaine)
         test = 0
         if parse_objet.tmp_inconnus:
-            test = parse_objet.remplacer(vars, fonctions) # remplacement est fait, reste la partie calculatoire
+            test = remplacer(parse_objet, variables, fonctions, parse_objet.tmp_inconnus) # remplacement est fait, reste la partie calculatoire
         if test == 0:
             nom = parse_objet.var
             liste = parse_objet.liste
             print('le nom de la fonction : {}, la liste : {}'.format(nom, liste))
             if nom != '?' and len(nom) == 2:
                 fonctions[nom[0]] = [nom[1], liste]
+                liste = simplifier_polynome(liste, nom[1])
                 print(affiche_polynome(liste))
             else:
                 reel, imaginaire, mat = traitement_partie_calculatoire(liste)
@@ -28,9 +29,9 @@ if __name__ == "__main__":
                     if mat != 'null':
                         matrices[nom[0]] = mat
                     elif imaginaire != 0:
-                        vars[nom[0]] = reel + ' + ' + imaginaire + ' * i'
+                        variables[nom[0]] = reel + ' + ' + imaginaire + ' * i'
                     else:
-                        vars[nom[0]] = reel
+                        variables[nom[0]] = reel
                 if mat != 'null' and isinstance(mat, list):
                     matrice.affiche_matrice(mat)
                 elif imaginaire != 0:
@@ -39,5 +40,5 @@ if __name__ == "__main__":
                     print(reel)
                 else:
                     print(mat)
-        print("les vars a printer sont {}".format(vars))
+        print("les variables a printer sont {}".format(variables))
         chaine = input()

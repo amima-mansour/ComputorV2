@@ -7,6 +7,37 @@ import fonctionPolynomiale as polynome
 import calculs
 import complexe
 
+def remplacer(objet, tmp_var, tmp_fonction, tmp_inconnus):
+# chercher les variables inconnues et les remplacer par leur valeurs
+
+    inconnu = '0'
+    if len(objet.var) == 2:
+        inconnu = objet.var[1]
+    for key, element in tmp_inconnus.items():
+        if isinstance(element, dict):
+            remplacer(objet ,tmp_var, tmp_fonction, element)
+            continue
+        if isinstance(element, list):
+            valeur = element[1]
+            fonction = element[0]
+            if ((element[1] not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', element[1])) \
+                or (tmp_fonction and element[0] not in tmp_fonction.keys())):
+                print("Error : variable not defined1")
+                return -1
+            tmp_inconnus[key] = polynome.calcul(tmp_fonction[fonction], valeur)
+        elif tmp_var and element in tmp_var.keys():
+            liste = objet.liste[:key]
+            liste += tmp_var[element].split()
+            liste += objet.liste[key + 1:]
+            objet.liste = liste
+        elif element == inconnu:
+            continue
+        else:
+            print("element = {}".format(element))
+            print("Error : variable not defined")
+            return -1
+    return 0
+
 # verifier l'existence d'un seul = dans la chaine
 def equal_number(chaine):
 
@@ -86,7 +117,7 @@ def premier_test(chaine):
             liste_finale = liste_finale + test_elementaire(chaine[:indice_1].strip())
         indice_1 += 1
         nouvelle_chaine = chaine[indice_1:].strip()
-        indice_2 = indice_caractere(nouvelle_chaine, ')', '(')
+        indice_2 = indice_caractere(nouvelle_chaine, '(', ')')
         if indice_2 > 0:
             liste_finale.append(premier_test(nouvelle_chaine[:indice_2].strip()))
             indice_2 += 1
@@ -115,8 +146,10 @@ def traitement_nom_de_variable(chaine):
 #  organiser la chaine : chaque element est dans un bloc
 def organiser_chaine(chaine):
 
+    if re.match(r'[0-9]+(\.[0-9]+)?', chaine):
+        return [chaine]
     liste_finale = []
-    m = re.search(r'(\*|\^|\/|%|\+|-|i)', chaine)
+    m = re.search(r'(\*|\^|\/|%|\+|-|i|[a-zA-Z]+)', chaine)
     char = m.group(0)
     liste_inter = chaine.split(char)
     for element_inter in liste_inter:
@@ -126,9 +159,9 @@ def organiser_chaine(chaine):
             liste_finale.append(element_inter)
         else:
             liste_finale.extend(organiser_chaine(element_inter))
-        if char == 'i':
+        if char == 'i' or re.match('[a-zA-Z]+', char):
             liste_finale.append('*')
-            liste_finale.append('i')
+            liste_finale.append(char)
         elif liste_inter.index(element_inter) != len(liste_inter) - 1:
             liste_finale.append(char)
         else:
@@ -175,6 +208,7 @@ def test_partie_calculatoire(chaine, nom_var):
     # chaque nombre et operateur constitue un element tout seul de la liste
     liste = organiser_liste(liste)
     # chercher les variables inconnues et se trouvant dans l'expression
+    print("la liste apres org = {}".format(liste))
     variables = calculs.variables_inconnues(liste)
     return liste, variables
 

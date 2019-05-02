@@ -29,30 +29,3 @@ class Parsing:
                 self.tmp_inconnus = {}
             else:
                 self.liste, self.tmp_inconnus = outils.test_partie_calculatoire(liste_droite, self.var)
-
-    def remplacer(self, tmp_var, tmp_fonction):
-    # chercher les variables inconnues et les remplacer par leur valeurs
-
-        inconnu = '0'
-        if len(self.var) == 2:
-            inconnu = self.var[1]
-        for key, element in self.tmp_inconnus.items():
-            if isinstance(element, list):
-                valeur = element[1]
-                fonction = element[0]
-                if ((element[1] not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', element[1])) \
-                    or (element[0] not in tmp_fonction.keys())):
-                    print("Error : variable not defined")
-                    return -1
-                self.tmp_inconnus[key] = polynome.calcul(tmp_fonction[fonction], valeur)
-            elif element in tmp_var.keys():
-                liste = self.liste[:key]
-                liste += tmp_var[element].split()
-                liste += self.liste[key + 1:]
-                self.liste = liste
-            elif element == inconnu:
-                pass
-            else:
-                print("Error : variable not defined 1")
-                return -1
-        return 0
