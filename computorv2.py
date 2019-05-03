@@ -22,7 +22,7 @@ if __name__ == "__main__":
             if nom != '?' and len(nom) == 2:
                 fonctions[nom[0]] = [nom[1], liste]
                 liste = simplifier_polynome(liste, nom[1])
-                print(affiche_polynome(liste))
+                print(affiche_polynome(liste, nom[1]))
             else:
                 reel, imaginaire, mat = traitement_partie_calculatoire(liste)
                 if nom != '?':
