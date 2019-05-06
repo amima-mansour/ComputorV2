@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import sys
+import calculs
 from parse import *
 from fonctionPolynomiale import *
 from parsingOutils import *
@@ -21,6 +22,7 @@ if __name__ == "__main__":
             print('le nom de la fonction : {}, la liste : {}'.format(nom, liste))
             if nom != '?' and len(nom) == 2:
                 fonctions[nom[0]] = [nom[1], liste]
+                liste = calcul_fragmente(liste, nom[1])
                 liste = simplifier_polynome(liste, nom[1])
                 print(affiche_polynome(liste, nom[1]))
             else:

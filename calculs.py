@@ -26,6 +26,7 @@ def calcul_elementaire(liste, char):
                 tmp = n_1 ** n_2
             elif char == '*':
                 tmp = n_1 * n_2
+                print("le tmp est {}".format(tmp))
             elif char == '/':
                 try:
                     tmp = n_1 / n_2
@@ -38,9 +39,14 @@ def calcul_elementaire(liste, char):
                 tmp = n_1 + n_2
             else:
                 tmp = n_1 - n_2
-        liste[index] = str(tmp)
-        del liste[index - 1]
+        print("la liste a modifier = {}, index = {}".format(liste, index))
         del liste[index]
+        liste[index - 1] = str(tmp)
+        del liste[index]
+        print("la liste apres modification  = {}, index = {}".format(liste, index))
+        #del liste[index]
+        #del liste[index - 1]
+        #del liste[index]
     return liste
 
 def variables_inconnues(liste):
