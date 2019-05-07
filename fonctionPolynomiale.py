@@ -3,6 +3,7 @@
 from operations import *
 import calculs
 import re
+import resolutions
 
 def calcul(liste, inconnu):
     # Cette fonction permet de tester et réorganiser un polynome.
@@ -18,6 +19,7 @@ def calcul_fragmente(liste, inconnu):
 
     liste_finale = []
     while '+' in liste or '-' in liste:
+        print("rentrer")
         index_1, index_2 = len(liste), len(liste)
         if '+' in liste:
             index_1 = liste.index('+')
@@ -35,10 +37,19 @@ def calcul_fragmente(liste, inconnu):
             index = liste_a_calculer.index(inconnu)
             if index > 0:
                 index -= 1
-            liste_inconnu = liste_a_calculer[index:]
-            liste_a_calculer = liste_a_calculer[:index]
+                liste_inconnu = liste_a_calculer[index:]
+                liste_a_calculer = liste_a_calculer[:index]
+            else:
+                if '*' in liste_a_calculer:
+                    index_3 = liste_a_calculer.index('*')
+                    liste_inconnu = ['*']
+                    liste_inconnu.extend(liste_a_calculer[:index_3])
+                    liste_a_calculer = liste_a_calculer[index_3 + 1:]
+                else:
+                    liste_inconnu = liste_a_calculer
+                    liste_a_calculer = []
         if liste_a_calculer:
-            liste_finale.append(calculs.calcul(liste_a_calculer))
+            liste_finale.append(calculs.calcul_global(liste_a_calculer))
         if len(liste_inconnu) > 0:
             liste_finale.extend(liste_inconnu)
         liste_finale.append(liste[index_min])
@@ -48,10 +59,20 @@ def calcul_fragmente(liste, inconnu):
         index = liste.index(inconnu)
         if index > 0:
             index -= 1
-        liste_inconnu = liste[index:]
-        liste = liste[:index]
-    if liste:
-        liste_finale.append(calculs.calcul(liste))
+        if '*' in liste:
+            index_3 = liste.index('*')
+            liste_inconnu = ['*']
+            print("les inconnus avant {}, liste a rajouter {}".format(liste_inconnu, liste[:index_3]))
+            liste_inconnu.extend(liste[:index_3])
+            print("les inconnus apres {}".format(liste_inconnu))
+            liste = liste[index_3 + 1:]
+            print("liste a calculer {}".format(liste))
+        else:
+            liste_inconnu = liste
+            liste = []
+    if len(liste) > 0:
+        print("coucou {}".format(calculs.calcul_global(liste)))
+        liste_finale.append(calculs.calcul_global(liste))
     if len(liste_inconnu) > 0:
         liste_finale.extend(liste_inconnu)
     print("la liste apres la fragementation = {}".format(liste_finale))
@@ -84,12 +105,12 @@ def nettoyer_polynome(liste, inconnu):
                     liste_finale.extend(liste[index:index + 3])
                 else:
                     liste_finale.extend(liste[index - 2:index + 3])
-                if index + 3 < len(liste_finale) and liste_finale[len(liste_finale) - 1] not in '-+':
+                if index + 3 < len(liste) and liste_finale[len(liste_finale) - 1] not in '-+':
                         liste_finale.append(liste[index + 3])
                 del liste[index - 2:index + 3]
                 i -= 2
-                if liste and liste[i] == '+':
-                    del liste[i]    
+                if i < len(liste) and liste[i] == '+':
+                    del liste[i]
             else:
                 i += 1
     return liste_finale
@@ -205,10 +226,9 @@ def degree(liste, inconnu):
                 degree = nbr
     return degree
 
-# calcul discriminant
 
-# resolution
-def resoudre(liste, inconnu):
+# fonction qui permet de retrouver a, b, c et le discriminant tel que a * x^2 + b * x + c = 0 
+def parametre_equation(liste, inconnu):
 
     liste_finale = []
     a, b, c = 'null'
@@ -234,3 +254,22 @@ def resoudre(liste, inconnu):
     return a, b, c, a**2 - 4 * b * c
 
 
+# resolution
+def resoudre(liste, inconnu):
+
+    d = degree(liste)
+    if d == 0:
+        print("The solution is:\nAll real numbers")
+    elif d == -1:
+        print("The solution is:\nNo possible solution")
+    elif d > 2:
+        print("The polynomial degree is stricly greater than 2, I can't solve.")
+    else:
+        a, b, c, disc = parametre_equation(liste, inconnu)
+        if d == 1:
+            solution = -1 * c / b
+            if type(solution) == float:
+                solution = round(solution, 6)
+            print("The solution is:\n{}".format(solution))
+        else:
+            resolutions.solutions(a, b, c)
