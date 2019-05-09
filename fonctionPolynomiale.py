@@ -14,12 +14,26 @@ def calcul(liste, inconnu):
             p = element.split('^')[1]
             liste[index] = puissance(inconnu, p)
 
+def verifier(liste, inconnu):
+    # Cette fonction verifie que la liste ne contient pas des inconnus.
+
+    for element in liste:
+        if isinstance(element, list):
+            if verifier(element, inconnu):
+                return True
+        elif element == inconnu:
+            return True
+        else:
+            continue
+    return False
+
+
+
 def calcul_fragmente(liste, inconnu):
     # Cette fonction permet de fragmenter les calculs avant les x^n. exemple 5 * 9 / 9 * x^n => 5 * x^n
 
     liste_finale = []
     while '+' in liste or '-' in liste:
-        print("rentrer")
         index_1, index_2 = len(liste), len(liste)
         if '+' in liste:
             index_1 = liste.index('+')
@@ -44,12 +58,13 @@ def calcul_fragmente(liste, inconnu):
                     index_3 = liste_a_calculer.index('*')
                     liste_inconnu = ['*']
                     liste_inconnu.extend(liste_a_calculer[:index_3])
-                    liste_a_calculer = liste_a_calculer[index_3 + 1:]
                 else:
                     liste_inconnu = liste_a_calculer
                     liste_a_calculer = []
-        if liste_a_calculer:
+        if len(liste_a_calculer) > 0 and not verifier(liste_a_calculer,inconnu):
             liste_finale.append(calculs.calcul_global(liste_a_calculer))
+        else:
+            liste_finale.extend(liste_a_calculer)
         if len(liste_inconnu) > 0:
             liste_finale.extend(liste_inconnu)
         liste_finale.append(liste[index_min])
@@ -59,20 +74,21 @@ def calcul_fragmente(liste, inconnu):
         index = liste.index(inconnu)
         if index > 0:
             index -= 1
-        if '*' in liste:
-            index_3 = liste.index('*')
-            liste_inconnu = ['*']
-            print("les inconnus avant {}, liste a rajouter {}".format(liste_inconnu, liste[:index_3]))
-            liste_inconnu.extend(liste[:index_3])
-            print("les inconnus apres {}".format(liste_inconnu))
-            liste = liste[index_3 + 1:]
-            print("liste a calculer {}".format(liste))
+            liste_inconnu = liste[index:]
+            liste = liste[:index]
         else:
-            liste_inconnu = liste
-            liste = []
-    if len(liste) > 0:
-        print("coucou {}".format(calculs.calcul_global(liste)))
+            if '*' in liste:
+                index_3 = liste.index('*')
+                liste_inconnu = ['*']
+                liste_inconnu.extend(liste[:index_3])
+                liste = liste[index_3 + 1:]
+            else:
+                liste_inconnu = liste
+                liste = []
+    if len(liste) > 0 and not verifier(liste, inconnu):
         liste_finale.append(calculs.calcul_global(liste))
+    else:
+        liste_finale.extend(liste)
     if len(liste_inconnu) > 0:
         liste_finale.extend(liste_inconnu)
     print("la liste apres la fragementation = {}".format(liste_finale))
@@ -87,32 +103,42 @@ def calcul_fragmente(liste, inconnu):
 def nettoyer_polynome(liste, inconnu):
 
     liste_finale = []
-    i = 0
-    while liste:
-        element = liste[i]
+    index = 0
+    while len(liste) != 0:
+        element = liste[index]
         if isinstance(element, list):
-            nettoyer_polynome(element)
+            liste_finale.append(element)
+            del liste[index]
+            if index < len(liste) and liste[index] in '*/^':
+                liste_finale.extend(liste[index: index + 2])
+                del liste[index:index + 2]
+            if index < len(liste) and liste[index] in '+-':
+                liste_finale.append(liste[index])
+            del liste[index]
+            continue
         else:
             if element == inconnu:
-                index = liste.index(element)
                 if liste[index - 2] == '0':
                     pass
                 elif liste[index + 2] == '0':
                     liste_finale.extend(liste[index - 2:index - 1])
                 elif liste[index + 2] == '1':
-                    liste_finale.extend(liste[index - 2:index + 1])
+                    if liste[index - 2] == '1':
+                        liste_finale.extend(liste[index:index + 1])
+                    else:
+                        liste_finale.extend(liste[index - 2:index + 1])
                 elif liste[index - 2] == '1':
                     liste_finale.extend(liste[index:index + 3])
                 else:
                     liste_finale.extend(liste[index - 2:index + 3])
-                if index + 3 < len(liste) and liste_finale[len(liste_finale) - 1] not in '-+':
-                        liste_finale.append(liste[index + 3])
                 del liste[index - 2:index + 3]
-                i -= 2
-                if i < len(liste) and liste[i] == '+':
-                    del liste[i]
+                index -= 2
+                if index < len(liste) and liste[index] in '-+':
+                    liste_finale.append(liste[index])
+                    del liste[index]
+                    index -= 1
             else:
-                i += 1
+                index += 1
     return liste_finale
 
 # afficher le polynome sur la sortie standard
@@ -124,7 +150,11 @@ def affiche_polynome(liste, inconnu):
     chaine = ''
     for element in liste:
         if isinstance(element, list):
-            chaine += '(' + affiche_polynome(element) + ') '
+            chaine_inter = affiche_polynome(element, inconnu)
+            if inconnu not in chaine_inter:
+                chaine += chaine_inter + ' '
+            else:
+                chaine += '(' + chaine_inter + ') '
         else:
             chaine += element
             if liste.index(element) != len(liste) - 1:
@@ -152,22 +182,25 @@ def simplifier_polynome(liste, inconnu):
 
     dic = {}
     liste_finale = []
-    index = 0
-    while inconnu in liste:
-        element = liste[index]
+    for element in liste:
         coeff, degree = 1, 1
         # traiter d'abord ce qui est entre les prentheses par exemple f(x) = 5 + (x + 2 - 5 * 3)^2
         if isinstance(element, list):
             liste_finale.append(simplifier_polynome(element, inconnu))
+            index = liste.index(element)
+            del liste[index]
+            if index < len(liste) and liste[index] == '^' or liste[index] == '/' or liste[index] == '*':
+                liste_finale.extend(liste[index:index + 2])
+                del liste[index]
+                del liste[index]
             continue
         if inconnu == element:
+            index = liste.index(element)
             # degree
             if index + 2 < len(liste) and liste[index + 1] == '^':
                 degree = calculs.nombre(liste[index + 2])
                 del liste[index + 1]
                 del liste[index + 1]
-            else:
-                degree = 1
             # nbr
             if index - 2 >= 0 and liste[index - 1] == '*':
                 nbr = calculs.nombre(liste[index - 2])
@@ -190,13 +223,12 @@ def simplifier_polynome(liste, inconnu):
                 dic[degree] += coeff * nbr
             else:
                 dic[degree] = coeff * nbr
-        else:
-            index += 1
     dic[0] = degree_null(liste, inconnu)
     i = 0
+    print("le dic = {}".format(dic))
     while len(dic) != 0 :
         if i in dic.keys():
-            if i != 0:
+            if len(liste_finale) != 0:
                 if dic[i] < 0:
                     liste_finale.append('-')
                 else:
@@ -209,7 +241,6 @@ def simplifier_polynome(liste, inconnu):
             liste_finale.append('0')
         liste_finale.extend(['*', inconnu, '^', str(i)])
         i += 1
-    print("liste apres simplification {}".format(liste_finale))
     return liste_finale
 
 ####RESOLUTION#####

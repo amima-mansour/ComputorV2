@@ -146,7 +146,7 @@ def traitement_nom_de_variable(chaine):
 #  organiser la chaine : chaque element est dans un bloc
 def organiser_chaine(chaine):
 
-    if re.match(r'[0-9]+(\.[0-9]+)?', chaine):
+    if re.match(r'^[0-9]+(\.[0-9]+)?$', chaine):
         return [chaine]
     liste_finale = []
     m = re.search(r'(\*|\^|\/|%|\+|-|i|[a-zA-Z]+)', chaine)
@@ -199,6 +199,9 @@ def organiser_liste(liste):
 # tester la partie calculatoire
 def test_partie_calculatoire(chaine, nom_var):
 
+    inconnu = ''
+    if len(nom_var) == 2:
+        inconnu = nom_var[1]
     # parsing pour mettre cette expression dans une liste
     liste = premier_test(chaine)
     # eliminer les elements vides
