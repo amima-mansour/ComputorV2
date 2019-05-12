@@ -5,6 +5,7 @@ import calculs
 from parse import *
 from fonctionPolynomiale import *
 from parsingOutils import *
+from resolutions import *
 
 if __name__ == "__main__":
     variables = {}
@@ -19,13 +20,22 @@ if __name__ == "__main__":
         if test == 0:
             nom = parse_objet.var
             liste = parse_objet.liste
-            print('le nom de la fonction : {}, la liste : {}'.format(nom, liste))
             if nom != '?' and len(nom) == 2:
-                fonctions[nom[0]] = [nom[1], liste]
-                liste = calcul_fragmente(liste, nom[1])
-                liste = simplifier_polynome(liste, nom[1])
-                print("la liste apres simplification = {}".format(liste))
-                print(affiche_polynome(liste, nom[1]))
+                if nom[0] in fonctions.keys():
+                    liste = calcul_fragmente(liste, fonctions[nom[0]][0])
+                    liste = simplifier_polynome(liste, fonctions[nom[0]][0])
+                    liste = integrer_2_polynomes(fonctions[nom[0]][1], liste)
+                    print("la liste integrer = {}".format(liste))
+                    liste = simplifier_polynome(liste, fonctions[nom[0]][0])
+                    print("la liste simplifier = {}".format(liste))
+                    resoudre(liste, fonctions[nom[0]][0])
+                else:
+                    liste = calcul_fragmente(liste, nom[1])
+                    liste = simplifier_polynome(liste, nom[1])
+                    fonctions[nom[0]] = [nom[1], liste]
+                    liste = nettoyer_polynome(liste, nom[1])
+                    print("la liste finale = {}".format(liste))
+                    print(affiche_polynome(liste, nom[1]))
             else:
                 reel, imaginaire, mat = traitement_partie_calculatoire(liste)
                 if nom != '?':
@@ -43,5 +53,5 @@ if __name__ == "__main__":
                     print(reel)
                 else:
                     print(mat)
-        print("les variables a printer sont {}".format(variables))
+        print("les fonctions a printer sont {}".format(fonctions))
         chaine = input()

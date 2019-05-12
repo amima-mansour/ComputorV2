@@ -1,8 +1,96 @@
 # coding: utf-8
 
+import calculs
+import fonctionPolynomiale as polynome
+
+# fonction qui permet de retrouver a, b, c et le discriminant tel que a * x^2 + b * x + c = 0
+def parametre_equation(liste, inconnu):
+
+    liste_finale = []
+    a, b, c, index = 0, 0, 0, 0
+    while index < len(liste):
+        if isinstance(liste[index], list):
+            if len(liste_finale) > 0:
+                del liste_finale[len(liste_finale) - 1]
+            nbr, start = 1, index
+            if index - 1 >= 0 and liste[index - 1] == '*':
+                nbr = calculs.nombre(liste[index - 2])
+                strat -= 2
+                if index - 3 >= 0:
+                    start -= 1
+                    if liste[index - 3] == '-':
+                        nbr *= -1
+                del liste_finale[start: index]
+            if index + 1 < len(liste) and liste[index + 1] == '^':
+                liste_finale.extend(polynome.developper_puissance(liste[index], inconnu, calculs.nombre(liste[index + 2]), nbr))
+                index += 2
+            else:
+                liste_finale.extend(polynome.developper_puissance(liste[index], inconnu, 1, nbr))
+        else:
+            liste_finale.append(liste[index])
+        index += 1
+    print("la liste avant simplifie = {}".format(liste_finale))
+    liste = polynome.simplifier_polynome(liste_finale, inconnu)
+    print("la liste simplifie = {}".format(liste))
+    index = 0
+    while index < len(liste):
+        if liste[index] == inconnu:
+            if liste[index + 2] == '0':
+                c = calculs.nombre(liste[index - 2])
+            elif liste[index + 2] == '1':
+                b = calculs.nombre(liste[index - 2])
+            else:
+                a = calculs.nombre(liste[index - 2])
+        index += 1
+    return a, b, c, a**2 - 4 * b * c
+
+# trouver le degree
+def degree_polynome(liste, inconnu):
+
+    degree = 0
+    index = 0
+    while index < len(liste):
+        if isinstance(liste[index], list):
+            degree_1 = degree_polynome(liste[index], inconnu)
+            if index + 2 < len(liste) and liste[index + 1] == '^':
+                degree_1 *= calculs.nombre(liste[index + 2])
+                index += 2
+            if degree < degree_1: degree = degree_1
+            index += 1
+            continue
+        if liste[index] == '^':
+            nbr = calculs.nombre(liste[index + 1])
+            if degree < nbr: degree = nbr
+            index += 2
+        else:
+            index += 1
+    return degree
+
+# resolution
+def resoudre(liste, inconnu):
+
+    d = degree_polynome(liste, inconnu)
+    print("le degree est {}".format(d))
+    if d == 0:
+        print("The solution is:\nAll real numbers")
+    elif d == -1:
+        print("The solution is:\nNo possible solution")
+    elif d > 2:
+        print("The polynomial degree is stricly greater than 2, I can't solve.")
+    else:
+        a, b, c, disc = parametre_equation(liste, inconnu)
+        print("a = {}, b = {}, c = {}, disc = {}".format(a, b, c, disc))
+        if d == 1:
+            solution = -1 * c / b
+            if type(solution) == float:
+                solution = round(solution, 6)
+            print("The solution is:\n{}".format(solution))
+        else:
+            solutions(a, b, c)
+
 def reduced_form(chaine):
     # Cette fonction determine la forme reduite de l'equation.
-    
+
     equality = chaine.split('=')
     left = equality[0].split()
     right = equality[1].split()
@@ -25,11 +113,11 @@ def reduced_form(chaine):
     return chaine, degree, coeff_final
 
 def racine_carre(nombre):
-    # Cette fonction calcule la racine carree d'un nombre 
+    # Cette fonction calcule la racine carree d'un nombre
 
     i = 0.000001
     while i * i < nombre:
-        resultat = i 
+        resultat = i
         i += 0.000001
     return resultat
 

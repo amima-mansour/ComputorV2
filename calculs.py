@@ -26,7 +26,6 @@ def calcul_elementaire(liste, char):
                 tmp = n_1 ** n_2
             elif char == '*':
                 tmp = n_1 * n_2
-                print("le tmp est {}".format(tmp))
             elif char == '/':
                 try:
                     tmp = n_1 / n_2

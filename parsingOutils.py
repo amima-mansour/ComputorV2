@@ -211,7 +211,6 @@ def test_partie_calculatoire(chaine, nom_var):
     # chaque nombre et operateur constitue un element tout seul de la liste
     liste = organiser_liste(liste)
     # chercher les variables inconnues et se trouvant dans l'expression
-    print("la liste apres org = {}".format(liste))
     variables = calculs.variables_inconnues(liste)
     return liste, variables
 
