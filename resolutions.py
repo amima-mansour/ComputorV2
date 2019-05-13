@@ -29,20 +29,23 @@ def parametre_equation(liste, inconnu):
         else:
             liste_finale.append(liste[index])
         index += 1
-    print("la liste avant simplifie = {}".format(liste_finale))
     liste = polynome.simplifier_polynome(liste_finale, inconnu)
-    print("la liste simplifie = {}".format(liste))
     index = 0
     while index < len(liste):
         if liste[index] == inconnu:
+            coeff = 1
+            if index - 2 >= 0 and calculs.nombre(liste[index - 2]) < 0:
+                coeff *= -1
+            if index - 3 >= 0 and liste[index - 3] == '-':
+                coeff *= -1
             if liste[index + 2] == '0':
-                c = calculs.nombre(liste[index - 2])
+                c = coeff * calculs.nombre(liste[index - 2])
             elif liste[index + 2] == '1':
-                b = calculs.nombre(liste[index - 2])
+                b = coeff * calculs.nombre(liste[index - 2])
             else:
-                a = calculs.nombre(liste[index - 2])
+                a = coeff * calculs.nombre(liste[index - 2])
         index += 1
-    return a, b, c, a**2 - 4 * b * c
+    return a, b, c, a**2 - 4 * b * c, liste
 
 # trouver le degree
 def degree_polynome(liste, inconnu):
@@ -60,7 +63,7 @@ def degree_polynome(liste, inconnu):
             continue
         if liste[index] == '^':
             nbr = calculs.nombre(liste[index + 1])
-            if degree < nbr: degree = nbr
+            if degree < nbr and calculs.nombre(liste[index - 3]) != 0: degree = nbr
             index += 2
         else:
             index += 1
@@ -69,8 +72,8 @@ def degree_polynome(liste, inconnu):
 # resolution
 def resoudre(liste, inconnu):
 
+    a, b, c, disc, liste = parametre_equation(liste, inconnu)
     d = degree_polynome(liste, inconnu)
-    print("le degree est {}".format(d))
     if d == 0:
         print("The solution is:\nAll real numbers")
     elif d == -1:
@@ -78,8 +81,6 @@ def resoudre(liste, inconnu):
     elif d > 2:
         print("The polynomial degree is stricly greater than 2, I can't solve.")
     else:
-        a, b, c, disc = parametre_equation(liste, inconnu)
-        print("a = {}, b = {}, c = {}, disc = {}".format(a, b, c, disc))
         if d == 1:
             solution = -1 * c / b
             if type(solution) == float:
@@ -87,30 +88,6 @@ def resoudre(liste, inconnu):
             print("The solution is:\n{}".format(solution))
         else:
             solutions(a, b, c)
-
-def reduced_form(chaine):
-    # Cette fonction determine la forme reduite de l'equation.
-
-    equality = chaine.split('=')
-    left = equality[0].split()
-    right = equality[1].split()
-    coeff_gauche = identifier_coefficients(left)
-    coeff_droite = identifier_coefficients(right)
-    coeff_final = {}
-    for element in coeff_gauche:
-        if element in coeff_droite.keys():
-            coeff_final[element] = coeff_gauche[element] - coeff_droite[element]
-            coeff_droite[element] = 0
-        else:
-            coeff_final[element] = coeff_gauche[element]
-    for element in coeff_droite:
-        if coeff_droite[element]:
-            coeff_final[element] = -1 * coeff_droite[element]
-    coeff_final_copy = coeff_final.copy()
-    degree, chaine = reduced_string(coeff_final_copy)
-    if degree > 0:
-        chaine = chaine[3:]
-    return chaine, degree, coeff_final
 
 def racine_carre(nombre):
     # Cette fonction calcule la racine carree d'un nombre

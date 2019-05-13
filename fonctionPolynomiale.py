@@ -4,6 +4,7 @@ from operations import *
 import calculs
 import re
 import resolutions
+from copy import deepcopy
 
 def calcul(liste, inconnu):
     # Cette fonction permet de tester et réorganiser un polynome.
@@ -90,7 +91,6 @@ def calcul_fragmente(liste, inconnu):
     if inconnu in liste:
         liste, liste_inconnu = diviser_en_deux_parties(liste, inconnu)
     liste_finale = ajouter_a_liste(liste_finale, liste, liste_inconnu, inconnu)
-    print("la liste apres la fragementation = {}".format(liste_finale))
     return liste_finale
 
 # nettoyer la partie entre parenthese
@@ -188,7 +188,6 @@ def elements_polynome(liste, index):
     coeff, degree = 1, 1
     # degree
     if index + 2 < len(liste) and liste[index + 1] == '^':
-        print("rentrer")
         degree = calculs.nombre(liste[index + 2])
         del liste[index + 1: index + 3]
     # nbr
@@ -210,6 +209,7 @@ def elements_polynome(liste, index):
         del liste[index]
         index -= 1
         nbr = 1
+    if index < 0: index = 0
     return degree, nbr, liste, coeff, index
 
 # reconstruire le polynome final a partir des elements de dictionnaire dic
@@ -221,10 +221,12 @@ def trouver_polynome_final(dic, inconnu, liste_finale):
             if i == 0 and len(liste_finale) != 0:
                 liste_finale = [str(dic[i]), '*', inconnu, '^', str(i) , '+'] + list(liste_finale)
                 del dic[i]
+                i += 1
                 continue
             if len(liste_finale) != 0:
                 if dic[i] < 0:
                     liste_finale.append('-')
+                    dic[i] *= -1
                 else:
                     liste_finale.append('+')
             liste_finale.append(str(dic[i]))
@@ -242,10 +244,9 @@ def simplifier_polynome(liste, inconnu):
 
     dic, liste_finale = {}, []
     index, dic[0] = 0, 0
-    while index < len(liste):
+    while index < len(liste) and len(liste) > 0 :
         # traiter d'abord ce qui est entre les prentheses par exemple f(x) = 5 + (x + 2 - 5 * 3)^2
         if isinstance(liste[index], list):
-            print("rentrer")
             if index - 2 >= 0 and liste[index - 1] == '*':
                 liste_finale.extend(liste[index-2:index])
                 del liste[index -2:index]
@@ -257,6 +258,7 @@ def simplifier_polynome(liste, inconnu):
                 del liste[index:index + 2]
             if index - 2 >= 0 and liste[index - 1] == '*':
                 liste_finale.extend[index-2:index]
+            if index < 0: index = 0
             continue
         if inconnu == liste[index]:
             degree, nbr, liste, coeff, index = elements_polynome(liste, index)
@@ -271,9 +273,13 @@ def simplifier_polynome(liste, inconnu):
 
 def integrer_2_polynomes(liste1, liste2):
 
-    liste_finale = list(liste1)
-    if calculs.nombre(liste1[0]) > 0:
+    liste_finale = deepcopy(liste1)
+    if calculs.nombre(liste2[0]) > 0:
         liste_finale.append('-')
+    else:
+        liste_finale.append('+')
+        nbr = -1 * calculs.nombre(liste2[0])
+        liste2[0] = str(nbr)
     for element in liste2:
         if element == '+':
             liste_finale.append('-')
@@ -285,15 +291,14 @@ def integrer_2_polynomes(liste1, liste2):
 
 def developper_puissance(liste, inconnu, puissance, nbr):
 
-    carc = '+'
-    coeff = 1
+    carc, coeff = '+', 1
     if nbr < 0:
         carc, coeff = '-', -1
     index, liste_finale = 0, []
     while index < len(liste):
         if liste[index] == inconnu:
             liste_finale.extend([liste[index], '^'])
-            liste_finale.append(str(calculs.nombre(liste[index + 2])*2))
+            liste_finale.append(str(calculs.nombre(liste[index + 2])*puissance))
             index += 2
         elif liste[index] in '+-':
             if carc == liste[index]:
@@ -322,9 +327,9 @@ def developper_puissance(liste, inconnu, puissance, nbr):
             index += 1
         if tmp < 0 and carc == '-':
             coeff, carac = -1, '+'
-        liste_finale.extend([carc, str(coeff * tmp), inconnu, '^', '1'])
-        if calculs.nombre(liste_finale[0]) < 0:
-            liste_finale = ['-'] + liste_finale
-        else:
-            liste_finale = ['+'] + liste_finale
+        liste_finale.extend([carc, str(coeff * tmp), '*',inconnu, '^', '1'])
+    if calculs.nombre(liste_finale[0]) < 0:
+        liste_finale = ['-'] + liste_finale
+    else:
+        liste_finale = ['+'] + liste_finale
     return liste_finale

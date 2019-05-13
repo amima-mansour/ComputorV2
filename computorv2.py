@@ -25,16 +25,13 @@ if __name__ == "__main__":
                     liste = calcul_fragmente(liste, fonctions[nom[0]][0])
                     liste = simplifier_polynome(liste, fonctions[nom[0]][0])
                     liste = integrer_2_polynomes(fonctions[nom[0]][1], liste)
-                    print("la liste integrer = {}".format(liste))
                     liste = simplifier_polynome(liste, fonctions[nom[0]][0])
-                    print("la liste simplifier = {}".format(liste))
                     resoudre(liste, fonctions[nom[0]][0])
                 else:
                     liste = calcul_fragmente(liste, nom[1])
                     liste = simplifier_polynome(liste, nom[1])
                     fonctions[nom[0]] = [nom[1], liste]
                     liste = nettoyer_polynome(liste, nom[1])
-                    print("la liste finale = {}".format(liste))
                     print(affiche_polynome(liste, nom[1]))
             else:
                 reel, imaginaire, mat = traitement_partie_calculatoire(liste)
