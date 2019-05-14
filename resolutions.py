@@ -34,8 +34,6 @@ def parametre_equation(liste, inconnu):
     while index < len(liste):
         if liste[index] == inconnu:
             coeff = 1
-            if index - 2 >= 0 and calculs.nombre(liste[index - 2]) < 0:
-                coeff *= -1
             if index - 3 >= 0 and liste[index - 3] == '-':
                 coeff *= -1
             if liste[index + 2] == '0':
@@ -73,6 +71,7 @@ def degree_polynome(liste, inconnu):
 def resoudre(liste, inconnu):
 
     a, b, c, disc, liste = parametre_equation(liste, inconnu)
+    print("equation a resoudre = {}, a = {}, b = {}, c = {}".format(liste, a, b, c))
     d = degree_polynome(liste, inconnu)
     if d == 0:
         print("The solution is:\nAll real numbers")

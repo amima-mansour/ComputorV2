@@ -7,8 +7,10 @@ def test_complexe(chaine):
 
     try:
         assert chaine != 'i'
+        return True 
     except:
         print("Error : i can not be the name of a variable")
+        return False
 
 # tester si le nom de la fonction est correcte
 def test_fonction(chaine):
@@ -30,5 +32,7 @@ def test_variable(chaine):
     motif = r'[a-zA-Z]+'
     try:
         assert re.match(motif, chaine)
+        return 1
     except:
         print("Error : variable name is wrong it must be like asd or asD or ASD")
+        return 0

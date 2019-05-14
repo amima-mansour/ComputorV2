@@ -99,7 +99,6 @@ def calcul_toute_division_complexe(liste):
         if element != 'i' or (key < len(liste) - 1 and liste[key + 1] != '/'):
             continue
         nbr = 1 / nombre(liste[key + 2])
-        print("le nombre est {}".format(nbr))
         liste[key + 1] = '*'
         liste[key + 2] = str(nbr)
     return liste

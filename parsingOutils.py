@@ -15,16 +15,17 @@ def remplacer(objet, tmp_var, tmp_fonction, tmp_inconnus):
         inconnu = objet.var[1]
     for key, element in tmp_inconnus.items():
         if isinstance(element, dict):
-            remplacer(objet ,tmp_var, tmp_fonction, element)
+            remplacer(objet, tmp_var, tmp_fonction, element)
             continue
         if isinstance(element, list):
             valeur = element[1]
             fonction = element[0]
-            if ((element[1] not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', element[1])) \
-                or (tmp_fonction and element[0] not in tmp_fonction.keys())):
-                print("Error : variable not defined1")
+            if ((len(tmp_var.keys()) > 0 and valeur not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', valeur)) \
+                or (tmp_fonction and fonction not in tmp_fonction.keys())):
+                print("Error : variable or function not defined")
                 return -1
             tmp_inconnus[key] = polynome.calcul(tmp_fonction[fonction], valeur)
+            print("resultat = {}".format(tmp_inconnus[key]))
         elif tmp_var and element in tmp_var.keys():
             liste = objet.liste[:key]
             liste += tmp_var[element].split()
@@ -33,7 +34,6 @@ def remplacer(objet, tmp_var, tmp_fonction, tmp_inconnus):
         elif element == inconnu:
             continue
         else:
-            print("element = {}".format(element))
             print("Error : variable not defined")
             return -1
     return 0
@@ -76,10 +76,10 @@ def indice_caractere(chaine, char1, char2):
                     nbr_caractere_ouvrant -= 1
             i += 1
         print('Error : brackets\' problem')
-        return 0
+        return -1
     except AssertionError:
         print('Error : brackets\' problem')
-        return 0
+        return -1
 
 # transfomer une partie de la chaine de caractere principale en une liste
 def test_elementaire(chaine):
@@ -133,15 +133,17 @@ def traitement_nom_de_variable(chaine):
     if chaine == '?':
         return [chaine]
     # test de la variable avec 'i'
-    test_complexe(chaine)
-    if '(' in chaine:
+    if not test_complexe(chaine):
+        return []
+    if '(' in chaine or ')' in chaine:
         # recuperer dans ce cas le nom de la fonction, de la composition s'il y en a et le nom de l'inconu
         fonction, inconnu = test_fonction(chaine)
         return [fonction.lower(), inconnu.lower()]
     else:
         # tester le nom de la variable
-        test_variable(chaine)
-        return [chaine.lower()]
+        if test_variable(chaine) == 1:
+            return [chaine.lower()]
+        return []
 
 #  organiser la chaine : chaque element est dans un bloc
 def organiser_chaine(chaine):
@@ -150,6 +152,8 @@ def organiser_chaine(chaine):
         return [chaine]
     liste_finale = []
     m = re.search(r'(\*|\^|\/|%|\+|-|i|[a-zA-Z]+)', chaine)
+    if not m:
+        return []
     char = m.group(0)
     liste_inter = chaine.split(char)
     for element_inter in liste_inter:
@@ -175,7 +179,7 @@ def organiser_liste(liste):
     for element in liste:
         if isinstance(element, list):
             liste_finale.append(organiser_liste(element))
-        elif re.match(r'^([0-9]+(\.[0-9]+)?|\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
+        elif re.match(r'^(((-)?[0-9]+(\.[0-9]+)?)|\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
             liste_finale.append(element)
         else:
             while element:
@@ -190,7 +194,11 @@ def organiser_liste(liste):
                         element = ''.join(element[index_char + 1:])
                 else:
                     if element != 'i':
-                        liste_finale.extend(organiser_chaine(element))
+                        liste_inter = organiser_chaine(element)
+                        if not liste_inter:
+                            print("Error : Syntax")
+                            return []
+                        liste_finale.extend(liste_inter)
                     else:
                         liste_finale.append('i')
                     element = ''
@@ -210,6 +218,8 @@ def test_partie_calculatoire(chaine, nom_var):
             liste.remove(element)
     # chaque nombre et operateur constitue un element tout seul de la liste
     liste = organiser_liste(liste)
+    if not liste:
+        return liste, {}
     # chercher les variables inconnues et se trouvant dans l'expression
     variables = calculs.variables_inconnues(liste)
     return liste, variables
@@ -222,14 +232,11 @@ def traitement_partie_calculatoire(liste):
     # aucune trace de matrice, pas de complexe
     # complexe
     struct = calculs.verifier_structure(liste)
-    print("la structure est egale a {}".format(struct))
     if struct == 1:
         img, reel, liste = complexe.calcul_imaginaire(liste)
-        print("type reel = {} et reel = {}".format(type(reel), reel))
         reel = str(calculs.nombre(calculs.calcul_global(liste)) + calculs.nombre(reel))
     elif struct == 2:
         mat = matrice.traiter(liste)
-        print("la mat {}".format(mat))
     else:
         reel = calculs.calcul_global(liste)
     return reel, img, mat
@@ -257,9 +264,14 @@ def traitement_matrice(chaine):
     while '[' in chaine:
         index = chaine.index('[')
         fin = indice_caractere(chaine[index + 1:].strip(), '[', ']') + index
+        if fin < 0:
+            return []
         if index != 0:
             liste.extend(chaine[:index].strip().split())
-        liste.append(matrice.matrice_parsing(chaine[index + 1:fin + 1].strip()))
+        matrice_element = matrice.matrice_parsing(chaine[index + 1:fin + 1].strip())
+        if not matrice_element:
+            return []
+        liste.append(matrice_element)
         if fin < len(chaine) - 1:
             chaine = chaine[fin + 2:].strip()
     if chaine != '' and chaine != ' ':

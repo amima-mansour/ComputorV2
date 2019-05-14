@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from operations import *
 import calculs
 import re
 import resolutions
@@ -51,7 +50,12 @@ def diviser_en_deux_parties(liste, inconnu):
             index_3 = liste.index('*')
             liste_inconnu = ['*']
             liste_inconnu.extend(liste[:index_3])
-            liste = liste[index_3:]
+            liste = liste[index_3 + 1:]
+        elif '/' in liste:
+            index_3 = liste.index('/')
+            liste_inconnu = ['*']
+            liste_inconnu.extend(liste[:index_3])
+            liste = ['1'] + liste[index_3:]
         else:
             liste_inconnu = liste
             liste = []

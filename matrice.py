@@ -8,12 +8,19 @@ def matrice_parsing(chaine):
 
     matrice = []
     liste = chaine.split(';')
+    if len(liste) >= 2 and not liste[1]:
+        print("Error Matrix")
+        return matrice
     for element in liste:
         element = element[1:len(element) - 1]
         liste_tmp = []
         element_tmp = element.split(',')
         for el in element_tmp:
-            liste_tmp.append(calculs.nombre(el))
+            if re.match(r'^[0-9]+([0-9]+\.)?$', el):
+                liste_tmp.append(calculs.nombre(el))
+            else:
+                print("Error Matrix")
+                return []
         matrice.append(liste_tmp)
     return matrice
 
@@ -26,7 +33,7 @@ def compare_dimensions(M1, M2):
         assert n == len(M2)
         assert m == len(M2[0])
     except:
-        print("Erreur : Matrice dimensions")
+        print("Erreur : Matrix dimensions")
     else:
         return n, m
 

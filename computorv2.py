@@ -8,15 +8,16 @@ from parsingOutils import *
 from resolutions import *
 
 if __name__ == "__main__":
-    variables = {}
-    fonctions = {}
-    matrices = {}
+    variables, fonctions, matrices = {}, {}, {}
     chaine = input()
-    while (chaine != 'exit'):
-        parse_objet = Parsing(chaine)
-        test = 0
+    while chaine != 'exit':
+        parse_objet, test = Parsing(chaine), 0
+        if not parse_objet.liste or not parse_objet.var or not parse_objet.var[0]:
+            chaine = input()
+            continue
+        print("var = {} liste = {}".format(parse_objet.var, parse_objet.liste))
         if parse_objet.tmp_inconnus:
-            test = remplacer(parse_objet, variables, fonctions, parse_objet.tmp_inconnus) # remplacement est fait, reste la partie calculatoire
+            test = remplacer(parse_objet, variables, fonctions, parse_objet.tmp_inconnus)
         if test == 0:
             nom = parse_objet.var
             liste = parse_objet.liste
@@ -38,17 +39,19 @@ if __name__ == "__main__":
                 if nom != '?':
                     if mat != 'null':
                         matrices[nom[0]] = mat
-                    elif imaginaire != 0:
+                    elif imaginaire != 0 and imaginaire != 'null':
                         variables[nom[0]] = reel + ' + ' + imaginaire + ' * i'
-                    else:
+                    elif reel != 'null':
                         variables[nom[0]] = reel
+                    else:
+                        pass
                 if mat != 'null' and isinstance(mat, list):
                     matrice.affiche_matrice(mat)
-                elif imaginaire != 0:
+                elif imaginaire != 0 and imaginaire != 'null':
                     print('{} + {} * i'.format(reel, imaginaire))
-                elif reel != 0:
+                elif reel != 0 and reel != 'null':
                     print(reel)
                 else:
-                    print(mat)
+                    pass
         print("les fonctions a printer sont {}".format(fonctions))
         chaine = input()

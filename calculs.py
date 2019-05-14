@@ -2,7 +2,6 @@
 
 import re
 import matrice
-import operations
 
 def nombre(chaine):
     # Cette fonction permet de tester si une chaine est un nombre et si oui le retourner.
@@ -18,6 +17,9 @@ def calcul_elementaire(liste, char):
 
     while char in liste:
         index = liste.index(char)
+        if index == 0:
+            print("Error : Syntax")
+            return []
         if index != 0 and index + 1 < len(liste) and re.match(r'(-)?[0-9]+(\.[0-9]+)?',liste[index - 1]) \
             and re.match(r'(-)?[0-9]+(\.[0-9]+)?',liste[index + 1]):
             n_1 = nombre(liste[index - 1])
@@ -38,6 +40,9 @@ def calcul_elementaire(liste, char):
                 tmp = n_1 + n_2
             else:
                 tmp = n_1 - n_2
+        else:
+            print("Error : Syntax")
+            return [] 
         del liste[index]
         liste[index - 1] = str(tmp)
         del liste[index]
