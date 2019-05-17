@@ -207,7 +207,6 @@ def traiter(liste):
         else:
             pass
         i += 1
-    print("la matrice avant envoi {}".format(mat))
     return mat
 
 

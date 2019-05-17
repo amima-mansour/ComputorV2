@@ -7,7 +7,7 @@ import fonctionPolynomiale as polynome
 import calculs
 import complexe
 
-def remplacer(objet, tmp_var, tmp_fonction, tmp_inconnus):
+def remplacer(objet, tmp_var, tmp_fonction, tmp_matrices, tmp_inconnus):
 # chercher les variables inconnues et les remplacer par leur valeurs
 
     inconnu = '0'
@@ -15,20 +15,27 @@ def remplacer(objet, tmp_var, tmp_fonction, tmp_inconnus):
         inconnu = objet.var[1]
     for key, element in tmp_inconnus.items():
         if isinstance(element, dict):
-            remplacer(objet, tmp_var, tmp_fonction, element)
-            continue
+            test = remplacer(objet, tmp_var, tmp_fonction, element)
+            if test == 0:
+                continue
+            return test
         if isinstance(element, list):
-            valeur = element[1]
+            print("element = {}".format(element))
+            valeur = element[1][0]
             fonction = element[0]
             if ((len(tmp_var.keys()) > 0 and valeur not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', valeur)) \
                 or (tmp_fonction and fonction not in tmp_fonction.keys())):
                 print("Error : variable or function not defined")
                 return -1
-            tmp_inconnus[key] = polynome.calcul(tmp_fonction[fonction], valeur)
-            print("resultat = {}".format(tmp_inconnus[key]))
+            objet.liste[key] = polynome.calcul(tmp_fonction[fonction], valeur)
         elif tmp_var and element in tmp_var.keys():
             liste = objet.liste[:key]
             liste += tmp_var[element].split()
+            liste += objet.liste[key + 1:]
+            objet.liste = liste
+        elif tmp_matrices and element in tmp_matrices.keys():
+            liste = objet.liste[:key]
+            liste += [tmp_matrices[element]]
             liste += objet.liste[key + 1:]
             objet.liste = liste
         elif element == inconnu:
@@ -36,7 +43,19 @@ def remplacer(objet, tmp_var, tmp_fonction, tmp_inconnus):
         else:
             print("Error : variable not defined")
             return -1
+    objet.liste = nettoyer_post_remplacement(objet.liste)
     return 0
+
+# nettoyer la liste apres leremplacement
+def nettoyer_post_remplacement(liste):
+
+    index = 0
+    while index < len(liste):
+        if isinstance(liste[index], list) and len(liste[index]) == 1 and not isinstance(liste[index][0], list):
+            del liste[index]
+            index -= 1
+        index += 1
+    return liste
 
 # verifier l'existence d'un seul = dans la chaine
 def equal_number(chaine):
@@ -124,7 +143,7 @@ def premier_test(chaine):
             if indice_2 < len(nouvelle_chaine):
                 liste_finale = liste_finale + premier_test(nouvelle_chaine[indice_2:].strip())
         else:
-            liste_finale = []
+            liste_finale.append([])
     return liste_finale
 
 # traiter le nom de la variable ou de fonction
@@ -228,13 +247,15 @@ def test_partie_calculatoire(chaine, nom_var):
 def traitement_partie_calculatoire(liste):
     # traiter la partie calculatoire
 
-    reel, img, mat = 0, 0, 'null'
+    reel, img, mat = '0', '0', 'null'
     # aucune trace de matrice, pas de complexe
     # complexe
     struct = calculs.verifier_structure(liste)
     if struct == 1:
         img, reel, liste = complexe.calcul_imaginaire(liste)
-        reel = str(calculs.nombre(calculs.calcul_global(liste)) + calculs.nombre(reel))
+        if len(liste) > 0:
+            reel = calculs.nombre(calculs.calcul_global(liste)) + calculs.nombre(reel)
+        reel = str(reel)
     elif struct == 2:
         mat = matrice.traiter(liste)
     else:

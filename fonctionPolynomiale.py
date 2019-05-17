@@ -5,14 +5,27 @@ import re
 import resolutions
 from copy import deepcopy
 
-def calcul(liste, inconnu):
+def calcul(liste, val):
     # Cette fonction permet de tester et réorganiser un polynome.
 
-    for element in liste:
-        if inconnu in liste:
-            index = liste.index(element)
-            p = element.split('^')[1]
-            liste[index] = puissance(inconnu, p)
+    liste_finale = []
+    inconnu = liste[0]
+    liste = liste[1]
+    try:
+        val = calculs.nombre(val)
+        index = 0
+        while index < len(liste):
+            if liste[index] == inconnu:
+                p = calculs.nombre(liste[index + 2])
+                liste_finale.append(str(val ** p))
+                del liste[index + 1:index + 3]
+            else:
+                liste_finale.append(liste[index])
+            index += 1
+        resultat = calculs.calcul_global(liste_finale)
+    except:
+        resultat = 'null'
+    return resultat
 
 def verifier(liste, inconnu):
     # Cette fonction verifie si la liste ne contient pas des inconnus.
@@ -28,6 +41,7 @@ def verifier(liste, inconnu):
     return False
 
 def premier_caractere(liste):
+    
     index_1, index_2 = len(liste), len(liste)
     if '+' in liste:
         index_1 = liste.index('+')

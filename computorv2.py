@@ -15,9 +15,8 @@ if __name__ == "__main__":
         if not parse_objet.liste or not parse_objet.var or not parse_objet.var[0]:
             chaine = input()
             continue
-        print("var = {} liste = {}".format(parse_objet.var, parse_objet.liste))
         if parse_objet.tmp_inconnus:
-            test = remplacer(parse_objet, variables, fonctions, parse_objet.tmp_inconnus)
+            test = remplacer(parse_objet, variables, fonctions, matrices, parse_objet.tmp_inconnus)
         if test == 0:
             nom = parse_objet.var
             liste = parse_objet.liste
@@ -39,7 +38,7 @@ if __name__ == "__main__":
                 if nom != '?':
                     if mat != 'null':
                         matrices[nom[0]] = mat
-                    elif imaginaire != 0 and imaginaire != 'null':
+                    elif imaginaire != '0' and imaginaire != 'null':
                         variables[nom[0]] = reel + ' + ' + imaginaire + ' * i'
                     elif reel != 'null':
                         variables[nom[0]] = reel
@@ -47,11 +46,14 @@ if __name__ == "__main__":
                         pass
                 if mat != 'null' and isinstance(mat, list):
                     matrice.affiche_matrice(mat)
-                elif imaginaire != 0 and imaginaire != 'null':
-                    print('{} + {} * i'.format(reel, imaginaire))
+                elif imaginaire != '0' and imaginaire != 'null':
+                    if reel != '0':
+                        print('{} + {} * i'.format(reel, imaginaire))
+                    else:
+                        print('{} * i'.format(imaginaire))
                 elif reel != 0 and reel != 'null':
                     print(reel)
                 else:
                     pass
-        print("les fonctions a printer sont {}".format(fonctions))
+        print("les fonctions a printer sont {}\nles matrices a sauvegarder = {}".format(fonctions, matrices))
         chaine = input()
