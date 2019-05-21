@@ -2,6 +2,8 @@
 
 import calculs
 import re
+import parsingOutils
+import complexe
 
 # fonction qui permet de verifier retourner une matrice sous forme de liste
 def matrice_parsing(chaine):
@@ -16,8 +18,21 @@ def matrice_parsing(chaine):
         liste_tmp = []
         element_tmp = element.split(',')
         for el in element_tmp:
-            if re.match(r'^[0-9]+([0-9]+\.)?$', el):
-                liste_tmp.append(calculs.nombre(el))
+            if len(el) != 1:
+                el = parsingOutils.organiser_liste(el.split())
+                img, reel, liste = complexe.calcul_imaginaire(el)
+                reel_1 = calculs.calcul_global(liste)
+                if reel_1 == 'null': reel_1 = '0'
+                chaine = str(calculs.nombre(reel) + calculs.nombre(reel_1))
+                if calculs.nombre(img) < 0:
+                    chaine += ' - ' + str(calculs.nombre(img) * -1) + " * i"
+                elif calculs.nombre(img) > 0:
+                    chaine += " + " + img + " * i"
+                else:
+                    pass
+                liste_tmp.append(chaine)
+            elif re.match(r'^[0-9]+([0-9]+\.)?$', el):
+                liste_tmp.append(el)
             else:
                 print("Error Matrix")
                 return []
@@ -68,7 +83,7 @@ def addition_matrice(M1, M2):
 
     for i in range(n):
         for j in range(m):
-            M[i][j] = M1[i][j]+M2[i][j]
+            M[i][j] = str(calculs.nombre(M1[i][j]) + calculs.nombre(M2[i][j]))
 
     return M
 
@@ -79,7 +94,7 @@ def soustraction_matrice(M1, M2):
     M=[[0 for j in range(m)] for i in range(n)]#creer une matrice nxm pleine de zéro
     for i in range(n):
         for j in range(m):
-            M[i][j] = M1[i][j]- M2[i][j]
+            M[i][j] = str(calculs.nombre(M1[i][j])- calculs.nombre(M2[i][j]))
     return M
 
 # fonction qui permet de faire la multiplication de deux matrices
@@ -92,18 +107,18 @@ def multiplication_matrice(M1, M2):
     for i in range(n1):
         for j in range(m1):
             for k in range(m):
-                M[i][j] += M1[i][k] * M2[k][j]
+                M[i][j] += calculs.nombre(M1[i][k]) * calculs.nombre(M2[k][j])
+            M[i][j] = str(M[i][j])
     return M
 
 # fonction qui permet de faire la multiplication d'une matrice par un reel
 def multiplication_matrice_reel(M, reel):
 
-    print("la matrice M = {} le reel = {}".format(M, reel))
     n = len(M) # nombre de lignes de la matrice
     m = len(M[0]) # le nombre de colonnes de la matrice
     for i in range(n):
         for j in range(m):
-            M[i][j] = reel *  M[i][j]
+            M[i][j] = str(reel *  calculs.nombre(M[i][j]))
     return M
 
 # fonction qui permet de extraire d'une matrice d'une autre
@@ -138,7 +153,7 @@ def determinant_matrice(M):
     det = 0
     coeff = 1
     for i in range(n):
-        det += coeff * M[i][0] * determinant_matrice(extraire_matrice(M, i, 0))
+        det += coeff * calculs.nombre(M[i][0]) * determinant_matrice(extraire_matrice(M, i, 0))
         coeff *= -1
     return det
 
@@ -194,22 +209,20 @@ def traiter(liste):
             mat = addition_matrice(mat, liste[i + 1])
         elif '-' in liste[i]:
             mat = soustraction_matrice(mat, liste[i + 1])
-        elif '*' in liste[i]:
+        elif '**' in liste[i]:
             if isinstance(mat, list) and isinstance(liste[i + 1], list):
                 mat = multiplication_matrice(mat, liste[i + 1])
+        elif '*' in liste[i]:
+            if isinstance(mat, list):
+                nbr = liste[i + 1]
             else:
-                if isinstance(mat, list):
-                    nbr = liste[i + 1]
-                else:
-                    nbr = mat
-                    mat = liste[i + 1]
-                mat = multiplication_matrice_reel(mat, calculs.nombre(nbr))
+                nbr = mat
+                mat = liste[i + 1]
+            mat = multiplication_matrice_reel(mat, calculs.nombre(nbr))
         else:
             pass
         i += 1
     return mat
-
-
 
 # afficher la matrice sur la sortie standard
 def affiche_matrice(liste):
@@ -226,4 +239,4 @@ def affiche_matrice(liste):
         if i != len(liste):
             chaine += '\n'
         i += 1
-    print(chaine)
+    return chaine

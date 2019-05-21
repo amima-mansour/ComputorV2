@@ -6,6 +6,7 @@ from test_nom_de_variable import *
 import fonctionPolynomiale as polynome
 import calculs
 import complexe
+from copy import deepcopy
 
 def remplacer(objet, tmp_var, tmp_fonction, tmp_matrices, tmp_inconnus):
 # chercher les variables inconnues et les remplacer par leur valeurs
@@ -15,19 +16,23 @@ def remplacer(objet, tmp_var, tmp_fonction, tmp_matrices, tmp_inconnus):
         inconnu = objet.var[1]
     for key, element in tmp_inconnus.items():
         if isinstance(element, dict):
-            test = remplacer(objet, tmp_var, tmp_fonction, element)
+            test = remplacer(objet, tmp_var, tmp_fonction, tmp_matrices, element)
             if test == 0:
                 continue
             return test
         if isinstance(element, list):
-            print("element = {}".format(element))
             valeur = element[1][0]
             fonction = element[0]
             if ((len(tmp_var.keys()) > 0 and valeur not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', valeur)) \
-                or (tmp_fonction and fonction not in tmp_fonction.keys())):
+                or (len(tmp_fonction) and fonction not in tmp_fonction.keys()) or not tmp_var or not tmp_fonction):
                 print("Error : variable or function not defined")
                 return -1
-            objet.liste[key] = polynome.calcul(tmp_fonction[fonction], valeur)
+            if valeur in tmp_var.keys():
+                valeur = tmp_var[valeur]
+            inconnu = tmp_fonction[fonction][0]
+            fonction = deepcopy(tmp_fonction[fonction][1:])
+            objet.liste[key] = polynome.calcul(fonction, valeur, inconnu)
+            objet.liste[key + 1] = 'null'
         elif tmp_var and element in tmp_var.keys():
             liste = objet.liste[:key]
             liste += tmp_var[element].split()
@@ -35,7 +40,7 @@ def remplacer(objet, tmp_var, tmp_fonction, tmp_matrices, tmp_inconnus):
             objet.liste = liste
         elif tmp_matrices and element in tmp_matrices.keys():
             liste = objet.liste[:key]
-            liste += [tmp_matrices[element]]
+            liste += [deepcopy(tmp_matrices[element])]
             liste += objet.liste[key + 1:]
             objet.liste = liste
         elif element == inconnu:
@@ -51,10 +56,10 @@ def nettoyer_post_remplacement(liste):
 
     index = 0
     while index < len(liste):
-        if isinstance(liste[index], list) and len(liste[index]) == 1 and not isinstance(liste[index][0], list):
+        if liste[index] == 'null':
             del liste[index]
-            index -= 1
-        index += 1
+        else:
+            index += 1
     return liste
 
 # verifier l'existence d'un seul = dans la chaine
@@ -167,6 +172,8 @@ def traitement_nom_de_variable(chaine):
 #  organiser la chaine : chaque element est dans un bloc
 def organiser_chaine(chaine):
 
+    if len(chaine) == 1:
+        return [chaine]
     if re.match(r'^[0-9]+(\.[0-9]+)?$', chaine):
         return [chaine]
     liste_finale = []
@@ -198,8 +205,10 @@ def organiser_liste(liste):
     for element in liste:
         if isinstance(element, list):
             liste_finale.append(organiser_liste(element))
-        elif re.match(r'^(((-)?[0-9]+(\.[0-9]+)?)|\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
+        elif re.match(r'^(((-)?[0-9]+(\.[0-9]+)?)|\*|\*\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
             liste_finale.append(element)
+        elif re.match(r'^(-[a-zA-Z]+)$', element):
+            liste_finale.extend(['-1', '*', element[1:]])
         else:
             while element:
                 m = re.search(r"\*|\/|\+|-|%|\^", element)
@@ -254,6 +263,11 @@ def traitement_partie_calculatoire(liste):
     if struct == 1:
         img, reel, liste = complexe.calcul_imaginaire(liste)
         if len(liste) > 0:
+            if liste[0] == '+':
+                liste = liste[1:]
+            if liste[0] == '-':
+                liste = liste[1:]
+                liste[0] = '-' + liste[0]
             reel = calculs.nombre(calculs.calcul_global(liste)) + calculs.nombre(reel)
         reel = str(reel)
     elif struct == 2:
@@ -282,13 +296,16 @@ def traitement_liaison(chaine):
 def traitement_matrice(chaine):
 
     liste = []
+    inconnus = {}
     while '[' in chaine:
         index = chaine.index('[')
         fin = indice_caractere(chaine[index + 1:].strip(), '[', ']') + index
         if fin < 0:
             return []
         if index != 0:
-            liste.extend(chaine[:index].strip().split())
+            liste_avant = chaine[:index].strip().split()
+            inconnus.update(calculs.variables_inconnues(liste_avant))
+            liste.extend(liste_avant)
         matrice_element = matrice.matrice_parsing(chaine[index + 1:fin + 1].strip())
         if not matrice_element:
             return []
@@ -297,4 +314,4 @@ def traitement_matrice(chaine):
             chaine = chaine[fin + 2:].strip()
     if chaine != '' and chaine != ' ':
         liste.extend(chaine.split())
-    return liste
+    return liste, inconnus

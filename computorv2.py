@@ -29,7 +29,9 @@ if __name__ == "__main__":
                     resoudre(liste, fonctions[nom[0]][0])
                 else:
                     liste = calcul_fragmente(liste, nom[1])
+                    if not liste: continue
                     liste = simplifier_polynome(liste, nom[1])
+                    if not liste: continue
                     fonctions[nom[0]] = [nom[1], liste]
                     liste = nettoyer_polynome(liste, nom[1])
                     print(affiche_polynome(liste, nom[1]))
@@ -45,7 +47,7 @@ if __name__ == "__main__":
                     else:
                         pass
                 if mat != 'null' and isinstance(mat, list):
-                    matrice.affiche_matrice(mat)
+                    print(matrice.affiche_matrice(mat))
                 elif imaginaire != '0' and imaginaire != 'null':
                     if reel != '0':
                         print('{} + {} * i'.format(reel, imaginaire))

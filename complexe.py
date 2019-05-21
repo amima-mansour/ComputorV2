@@ -1,7 +1,8 @@
 # coding: utf-8
 
 import re
-from calculs import *
+#from calculs import *
+import calculs
 
 def puissance_complexe(nbr):
     # puissance complexe
@@ -40,12 +41,12 @@ def calcul_complexe_elementaire_gauche(liste, start, char):
     liste_a_traiter = liste[fin:start]
     liste = liste[:fin] + liste[start + 1:]
     if len(liste_a_traiter) == 1:
-        img = nombre(calcul_global(liste_a_traiter[0]))
+        img = calculs.nombre(calculs.calcul_global(liste_a_traiter[0]))
     else:
-        img = nombre(calcul_global(liste_a_traiter))
+        img = calculs.nombre(calculs.calcul_global(liste_a_traiter))
     if char == '/':
         img *= -1
-    return nombre(img), liste
+    return calculs.nombre(img), liste
 
 def calcul_complexe_elementaire_droite(liste, start):
     # effectuer des calculs elementaires en respectant la priorite
@@ -64,7 +65,7 @@ def calcul_complexe_elementaire_droite(liste, start):
         else:
             resultat *= calcul_elementaire_complexe(liste_a_traiter[index - 1], test)
         test = not test
-    nbr = resultat * nombre(calcul_global(liste_a_traiter))
+    nbr = resultat * calculs.nombre(calculs.calcul_global(liste_a_traiter))
     imag, reel = 0, 0
     if test:
         imag = nbr
@@ -81,7 +82,7 @@ def calcul_toute_puissance_complexe(liste):
     for key, element in enumerate(liste):
         if element != 'i' or (key < len(liste) - 1 and liste[key + 1] != '^'):
             continue
-        test, nbr = puissance_complexe(nombre(liste[key + 2]))
+        test, nbr = puissance_complexe(calculs.nombre(liste[key + 2]))
         liste[key + 1] = '*'
         liste[key + 2] = str(nbr)
         if not test:
@@ -98,7 +99,7 @@ def calcul_toute_division_complexe(liste):
     for key, element in enumerate(liste):
         if element != 'i' or (key < len(liste) - 1 and liste[key + 1] != '/'):
             continue
-        nbr = 1 / nombre(liste[key + 2])
+        nbr = 1 / calculs.nombre(liste[key + 2])
         liste[key + 1] = '*'
         liste[key + 2] = str(nbr)
     return liste

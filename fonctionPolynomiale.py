@@ -4,18 +4,19 @@ import calculs
 import re
 import resolutions
 from copy import deepcopy
+import matrice
 
-def calcul(liste, val):
+def calcul(liste, val, inconnu):
     # Cette fonction permet de tester et réorganiser un polynome.
 
     liste_finale = []
-    inconnu = liste[0]
-    liste = liste[1]
     try:
         val = calculs.nombre(val)
         index = 0
         while index < len(liste):
-            if liste[index] == inconnu:
+            if isinstance(liste[index], list):
+                liste_finale.append(calcul(liste[index], val, inconnu))
+            elif liste[index] == inconnu:
                 p = calculs.nombre(liste[index + 2])
                 liste_finale.append(str(val ** p))
                 del liste[index + 1:index + 3]
@@ -85,7 +86,10 @@ def diviser_en_deux_parties(liste, inconnu):
 def ajouter_a_liste(liste_finale, liste_a_calculer, liste_inconnu, inconnu):
 
     if len(liste_a_calculer) > 0 and not verifier(liste_a_calculer, inconnu):
-        liste_finale.append(calculs.calcul_global(liste_a_calculer))
+        if calculs.verifier_structure(liste_a_calculer) == 2:
+            liste_finale.append(matrice.traiter(liste_a_calculer))
+        else:
+            liste_finale.append(calculs.calcul_global(liste_a_calculer))
     else:
         liste_finale.extend(liste_a_calculer)
     if len(liste_inconnu) > 0:
@@ -133,7 +137,7 @@ def nettoyer_polynome(liste, inconnu):
     index = 0
     liste_finale = []
     while index < len(liste):
-        if isinstance(liste[index], list):
+        if isinstance(liste[index], list) and inconnu in liste[index]:
             liste_finale, index = nettoyer_polynome_parentheses(liste, liste_finale, index, inconnu)
             continue
         if liste[index] == inconnu:
@@ -166,11 +170,14 @@ def affiche_polynome(liste, inconnu):
     index = 0
     while index < len(liste):
         if isinstance(liste[index], list):
-            chaine_inter = affiche_polynome(liste[index], inconnu)
-            if inconnu not in chaine_inter:
-                chaine += chaine_inter + ' '
+            if inconnu in liste[index]:
+                chaine_inter = affiche_polynome(liste[index], inconnu)
+                if inconnu not in chaine_inter:
+                    chaine += chaine_inter + ' '
+                else:
+                    chaine += '(' + chaine_inter + ')'
             else:
-                chaine += '(' + chaine_inter + ')'
+                chaine += matrice.affiche_matrice(liste[index])
         else:
             chaine += liste[index]
         if index != len(liste) - 1:
@@ -190,13 +197,31 @@ def degree_null(liste, inconnu):
         if type(liste[index]) is not list and re.match(r'(-)?[0-9]+(\.[0-9]+)?', liste[index]):
             coeff = 1
             if index == 0:
-                nbr += calculs.nombre(liste[index])
+                nbr = calculs.nombre(liste[index])
+                print("nbr = {}".format(nbr))
                 index += 1
                 continue
             if index - 1 >= 0 and liste[index - 1] in '+-':
                 if index - 1 >= 0 and liste[index - 1] == '-':
                     coeff = -1
+                if not isinstance(nbr, int):
+                    print("Error : mixing")
+                    return 'null'
                 nbr += coeff * calculs.nombre(liste[index])
+        elif isinstance(liste[index], list) and inconnu not in liste[index]:
+            print("la liste = {}".format(liste[index]))
+            if nbr != 0 and not isinstance(nbr, list):
+                print("Error : mixing")
+                return 'null' 
+            if not nbr:
+                nbr = liste[index]
+            else:
+                if index - 1 >= 0 and liste[index - 1] in '-':
+                    nbr_tmp = matrice.soustraction_matrice(nbr_tmp, liste[index])
+                else:
+                    nbr_tmp = matrice.addition_matrice(nbr_tmp, liste[index])
+        else:
+            pass 
         index += 1
     return nbr
 
@@ -210,13 +235,13 @@ def elements_polynome(liste, index):
         del liste[index + 1: index + 3]
     # nbr
     if index - 2 >= 0 and liste[index - 1] == '*':
-        nbr = calculs.nombre(liste[index - 2])
+        nbr = liste[index - 2]
         del liste[index - 2: index + 1]
         index -= 2
         if index - 1 >= 0 and liste[index - 1] == '-':
             coeff = -1
     elif index + 2 < len(liste) and liste[index + 1] == '*':
-        nbr = calculs.nombre(liste[index + 2])
+        nbr = liste[index + 2]
         del liste[index: index + 3]
         index -= 1
         if index >= 0 and liste[index] == '-':
@@ -226,7 +251,7 @@ def elements_polynome(liste, index):
             coeff = -1
         del liste[index]
         index -= 1
-        nbr = 1
+        nbr = '1'
     if index < 0: index = 0
     return degree, nbr, liste, coeff, index
 
@@ -242,12 +267,15 @@ def trouver_polynome_final(dic, inconnu, liste_finale):
                 i += 1
                 continue
             if len(liste_finale) != 0:
-                if dic[i] < 0:
+                if not isinstance(dic[i], list) and dic[i] < 0:
                     liste_finale.append('-')
                     dic[i] *= -1
                 else:
                     liste_finale.append('+')
-            liste_finale.append(str(dic[i]))
+            if isinstance(dic[i], list): 
+                liste_finale.append(dic[i])
+            else:
+                liste_finale.append(str(dic[i]))
             del dic[i]
         else:
             if i != 0:
@@ -264,7 +292,7 @@ def simplifier_polynome(liste, inconnu):
     index, dic[0] = 0, 0
     while index < len(liste) and len(liste) > 0 :
         # traiter d'abord ce qui est entre les prentheses par exemple f(x) = 5 + (x + 2 - 5 * 3)^2
-        if isinstance(liste[index], list):
+        if isinstance(liste[index], list) and inconnu in liste[index]:
             if index - 2 >= 0 and liste[index - 1] == '*':
                 liste_finale.extend(liste[index-2:index])
                 del liste[index -2:index]
@@ -281,12 +309,29 @@ def simplifier_polynome(liste, inconnu):
         if inconnu == liste[index]:
             degree, nbr, liste, coeff, index = elements_polynome(liste, index)
             if degree in dic.keys():
-                dic[degree] += coeff * nbr
+                if not isinstance(nbr, list) and not isinstance(dic[degree], list):
+                    dic[degree] += coeff * calculs.nombre(nbr)
+                elif (isinstance(nbr, list) and not isinstance(dic[degree], list)) or (not isinstance(nbr, list) and isinstance(dic[degree], list)):
+                    print("Error Syntax")
+                    return []
+                else:
+                    if coeff == -1:
+                        dic[degree] = matrice.soustraction_matrice(dic[degree], nbr)
+                    else:
+                       dic[degree] = matrice.addition_matrice(dic[degree], nbr) 
             else:
-                dic[degree] = coeff * nbr
+                if not isinstance(nbr, list):
+                    dic[degree] = coeff * calculs.nombre(nbr)
+                else:
+                    dic[degree] = nbr
         else:
             index += 1
-    dic[0] += degree_null(liste, inconnu)
+    tmp = degree_null(liste, inconnu)
+    if tmp == 'null': return []
+    if isinstance(tmp, list):
+        dic[0] = tmp
+    else:
+        dic[0] += tmp
     return trouver_polynome_final(dic, inconnu, liste_finale)
 
 def integrer_2_polynomes(liste1, liste2):

@@ -52,23 +52,26 @@ def variables_inconnues(liste):
     # Cette fonction recuperer les variables inconnues et leurs indices
 
     variables = {}
-    for element in liste:
-        if element == 'i':
+    index = 0
+    while index < len(liste):
+        if liste[index] == 'i':
+            index += 1
             continue
-        index = liste.index(element)
-        if isinstance(element, list):
-            variables_inter = variables_inconnues(element)
+        if isinstance(liste[index], list):
+            variables_inter = variables_inconnues(liste[index])
             if variables_inter != {}:
                 variables[index] = variables_inter
-        elif re.match(r'^[A-Za-z]+$', element):
+        elif re.match(r'^[A-Za-z]+$', liste[index]):
             if index + 1 < len(liste) and isinstance(liste[index + 1], list):
                 # une variable de type f(2)
-                variables[index] = [element.lower() , liste[index + 1]]
+                variables[index] = [liste[index].lower() , liste[index + 1]]
+                index += 1
             else:
                 # une variable de type var
-                variables[index] = element.lower()
+                variables[index] = liste[index].lower()
         else:
-            continue
+            pass
+        index += 1
     return variables
 
 def calcul(liste):
@@ -78,8 +81,8 @@ def calcul(liste):
     liste = calcul_elementaire(liste, '/')
     liste = calcul_elementaire(liste, '%')
     liste = calcul_elementaire(liste, '*')
-    liste = calcul_elementaire(liste, '+')
     liste = calcul_elementaire(liste, '-')
+    liste = calcul_elementaire(liste, '+')
     if not liste:
         return 'null'
     return liste[0]

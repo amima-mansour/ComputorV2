@@ -26,6 +26,6 @@ class Parsing:
             self.var = outils.traitement_nom_de_variable(liste_gauche)
             # traiter la partie droite
             if '[' in liste_droite:
-                self.liste = outils.traitement_matrice(liste_droite)
+                self.liste, self.tmp_inconnus = outils.traitement_matrice(liste_droite)
             else:
                 self.liste, self.tmp_inconnus = outils.test_partie_calculatoire(liste_droite, self.var)
