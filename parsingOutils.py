@@ -8,48 +8,49 @@ import calculs
 import complexe
 from copy import deepcopy
 
-def remplacer(objet, tmp_var, tmp_fonction, tmp_matrices, tmp_inconnus):
+def remplacer(liste, tmp_var, tmp_fonction, tmp_matrices, tmp_inconnus, var):
 # chercher les variables inconnues et les remplacer par leur valeurs
 
     inconnu = '0'
-    if len(objet.var) == 2:
-        inconnu = objet.var[1]
+    if len(var) == 2:
+        inconnu = var[1]
     for key, element in tmp_inconnus.items():
         if isinstance(element, dict):
-            test = remplacer(objet, tmp_var, tmp_fonction, tmp_matrices, element)
-            if test == 0:
+            cle = list(tmp_inconnus.keys())[list(tmp_inconnus.values()).index(element)]
+            test, liste[cle] = remplacer(liste[cle], tmp_var, tmp_fonction, tmp_matrices, element, var)
+            if test == 0 and len(liste) > 0:
                 continue
-            return test
+            return test, liste
         if isinstance(element, list):
             valeur = element[1][0]
             fonction = element[0]
-            if ((len(tmp_var.keys()) > 0 and valeur not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', valeur)) \
-                or (len(tmp_fonction) and fonction not in tmp_fonction.keys()) or not tmp_var or not tmp_fonction):
+            if ((len(tmp_var.keys()) > 0 and valeur.lower() not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', valeur)) \
+                or (len(tmp_fonction) > 0 and fonction.lower() not in tmp_fonction.keys())):
                 print("Error : variable or function not defined")
                 return -1
-            if valeur in tmp_var.keys():
-                valeur = tmp_var[valeur]
-            inconnu = tmp_fonction[fonction][0]
-            fonction = deepcopy(tmp_fonction[fonction][1:])
-            objet.liste[key] = polynome.calcul(fonction, valeur, inconnu)
-            objet.liste[key + 1] = 'null'
-        elif tmp_var and element in tmp_var.keys():
-            liste = objet.liste[:key]
-            liste += tmp_var[element].split()
-            liste += objet.liste[key + 1:]
-            objet.liste = liste
-        elif tmp_matrices and element in tmp_matrices.keys():
-            liste = objet.liste[:key]
-            liste += [deepcopy(tmp_matrices[element])]
-            liste += objet.liste[key + 1:]
-            objet.liste = liste
+            if valeur.lower() in tmp_var.keys():
+                valeur = tmp_var[valeur.lower()]
+            inconnu = tmp_fonction[fonction.lower()][0]
+            fonction = deepcopy(tmp_fonction[fonction.lower()][1:])
+            liste[key] = polynome.calcul(fonction, valeur, inconnu)
+            liste[key + 1] = 'null'
+        elif tmp_var and element.lower() in tmp_var.keys():
+            liste_inter = liste[:key]
+            liste_inter += tmp_var[element.lower()].split()
+            liste_inter += liste[key + 1:]
+            liste = liste_inter
+        elif tmp_matrices and element.lower() in tmp_matrices.keys():
+            liste_inter = liste[:key]
+            liste_inter += [deepcopy(tmp_matrices[element.lower()])]
+            liste_inter += liste[key + 1:]
+            liste = liste_inter
         elif element == inconnu:
             continue
         else:
             print("Error : variable not defined")
-            return -1
-    objet.liste = nettoyer_post_remplacement(objet.liste)
-    return 0
+            return -1, []
+    liste = nettoyer_post_remplacement(liste)
+    return 0, liste
 
 # nettoyer la liste apres leremplacement
 def nettoyer_post_remplacement(liste):
@@ -174,7 +175,7 @@ def organiser_chaine(chaine):
 
     if len(chaine) == 1:
         return [chaine]
-    if re.match(r'^[0-9]+(\.[0-9]+)?$', chaine):
+    if re.match(r'^[0-9]+(\.[0-9]+)?|[a-zA-Z]+$', chaine):
         return [chaine]
     liste_finale = []
     m = re.search(r'(\*|\^|\/|%|\+|-|i|[a-zA-Z]+)', chaine)
@@ -205,10 +206,15 @@ def organiser_liste(liste):
     for element in liste:
         if isinstance(element, list):
             liste_finale.append(organiser_liste(element))
-        elif re.match(r'^(((-)?[0-9]+(\.[0-9]+)?)|\*|\*\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
+        elif re.match(r'^(([0-9]+(\.[0-9]+)?)|\*|\*\*|\^|\/|%|\+|-|i|[a-zA-Z]+)$', element):
             liste_finale.append(element)
         elif re.match(r'^(-[a-zA-Z]+)$', element):
             liste_finale.extend(['-1', '*', element[1:]])
+        elif re.match(r'^(-[0-9]+(\.[0-9]+)?)$', element):
+            if element == liste[0]:
+                liste_finale.append(element)
+            else:  
+                liste_finale.extend(['-', element[1:]])
         else:
             while element:
                 m = re.search(r"\*|\/|\+|-|%|\^", element)

@@ -71,7 +71,6 @@ def degree_polynome(liste, inconnu):
 def resoudre(liste, inconnu):
 
     a, b, c, disc, liste = parametre_equation(liste, inconnu)
-    print("equation a resoudre = {}, a = {}, b = {}, c = {}".format(liste, a, b, c))
     d = degree_polynome(liste, inconnu)
     if d == 0:
         print("The solution is:\nAll real numbers")

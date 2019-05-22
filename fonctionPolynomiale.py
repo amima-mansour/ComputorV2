@@ -198,20 +198,18 @@ def degree_null(liste, inconnu):
             coeff = 1
             if index == 0:
                 nbr = calculs.nombre(liste[index])
-                print("nbr = {}".format(nbr))
                 index += 1
                 continue
             if index - 1 >= 0 and liste[index - 1] in '+-':
                 if index - 1 >= 0 and liste[index - 1] == '-':
                     coeff = -1
                 if not isinstance(nbr, int):
-                    print("Error : mixing")
+                    print("Error : mixed types")
                     return 'null'
                 nbr += coeff * calculs.nombre(liste[index])
         elif isinstance(liste[index], list) and inconnu not in liste[index]:
-            print("la liste = {}".format(liste[index]))
             if nbr != 0 and not isinstance(nbr, list):
-                print("Error : mixing")
+                print("Error : mixed types")
                 return 'null' 
             if not nbr:
                 nbr = liste[index]
