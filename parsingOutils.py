@@ -27,7 +27,7 @@ def remplacer(liste, tmp_var, tmp_fonction, tmp_matrices, tmp_inconnus, var):
             if ((len(tmp_var.keys()) > 0 and valeur.lower() not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', valeur)) \
                 or (len(tmp_fonction) > 0 and fonction.lower() not in tmp_fonction.keys())):
                 print("Error : variable or function not defined")
-                return -1
+                return -1, []
             if valeur.lower() in tmp_var.keys():
                 valeur = tmp_var[valeur.lower()]
             inconnu = tmp_fonction[fonction.lower()][0]
@@ -51,6 +51,17 @@ def remplacer(liste, tmp_var, tmp_fonction, tmp_matrices, tmp_inconnus, var):
             return -1, []
     liste = nettoyer_post_remplacement(liste)
     return 0, liste
+
+# tester si la fonction est polynomiale ou pas
+def tester_polynome(liste, inconnu):
+
+    index = 0
+    while index < len(liste):
+        if liste[index] == '/':
+            if liste[index - 1] == inconnu or liste[index + 1] == inconnu or (isinstance(liste[index + 1], list) and inconnu in liste[index + 1]):
+                return 1
+        index += 1
+    return 0
 
 # nettoyer la liste apres leremplacement
 def nettoyer_post_remplacement(liste):
@@ -215,6 +226,12 @@ def organiser_liste(liste):
                 liste_finale.append(element)
             else:  
                 liste_finale.extend(['-', element[1:]])
+        elif re.match(r"^[0-9]+(\.[0-9]+)?[a-zA-Z]+$", element):
+            m = re.search(r"[0-9]+(\.[0-9]+)?", element)
+            nombre = m.group(0)
+            m = re.search(r"[a-zA-Z]+", element)
+            var = m.group(0)
+            liste_finale.extend([nombre, '*', var])
         else:
             while element:
                 m = re.search(r"\*|\/|\+|-|%|\^", element)

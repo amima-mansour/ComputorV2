@@ -10,22 +10,18 @@ def calcul(liste, val, inconnu):
     # Cette fonction permet de tester et réorganiser un polynome.
 
     liste_finale = []
-    try:
-        val = calculs.nombre(val)
-        index = 0
-        while index < len(liste):
-            if isinstance(liste[index], list):
-                liste_finale.append(calcul(liste[index], val, inconnu))
-            elif liste[index] == inconnu:
-                p = calculs.nombre(liste[index + 2])
-                liste_finale.append(str(val ** p))
-                del liste[index + 1:index + 3]
-            else:
-                liste_finale.append(liste[index])
-            index += 1
-        resultat = calculs.calcul_global(liste_finale)
-    except:
-        resultat = 'null'
+    index = 0
+    while index < len(liste):
+        if isinstance(liste[index], list):
+            liste_finale.append(calcul(liste[index], val, inconnu))
+        elif liste[index] == inconnu:
+            #p = calculs.nombre(liste[index + 2])
+            liste_finale.append(val)
+            #del liste[index + 1:index + 3]
+        else:
+            liste_finale.append(liste[index])
+        index += 1
+    resultat = calculs.calcul_global(liste_finale)
     return resultat
 
 def verifier(liste, inconnu):
@@ -185,6 +181,28 @@ def affiche_polynome(liste, inconnu):
                 pass
             else:
                 chaine += ' '
+        index += 1
+    return chaine
+
+# affichage simple de la fonction non polynome
+def simple_print(liste, inconnu):
+
+    chaine = ''
+    index = 0
+    while index < len(liste):
+        if isinstance(liste[index], list):
+            if inconnu in liste[index]:
+                chaine_inter = simple_print(liste[index], inconnu)
+                if inconnu not in chaine_inter:
+                    chaine += chaine_inter + ' '
+                else:
+                    chaine += '(' + chaine_inter + ')'
+            else:
+                chaine += matrice.affiche_matrice(liste[index])
+        else:
+            chaine += liste[index]
+        if index + 1 < len(liste):
+            chaine += ' '
         index += 1
     return chaine
 

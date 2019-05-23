@@ -196,7 +196,6 @@ def traiter(liste):
     if liste[0] == 'det(':
         return determinant_matrice(liste[1])
     if liste[0] == 'inv(':
-        print("la liste et matrice = {}".format(liste[1]))
         return inverser_matrice(liste[1]) 
     if liste[0] == 'com(':
         return comatrice(liste[1])

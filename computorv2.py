@@ -17,7 +17,7 @@ if __name__ == "__main__":
             continue
         if parse_objet.tmp_inconnus:
             test, parse_objet.liste = remplacer(parse_objet.liste, variables, fonctions, matrices, parse_objet.tmp_inconnus, parse_objet.var)
-        if test == 0 and parse_objet.liste:
+        if test == 0 and len(parse_objet.liste) > 0:
             nom = parse_objet.var
             liste = parse_objet.liste
             if nom != '?' and len(nom) == 2:
@@ -28,13 +28,17 @@ if __name__ == "__main__":
                     liste = simplifier_polynome(liste, fonctions[nom[0]][0])
                     resoudre(liste, fonctions[nom[0]][0])
                 else:
-                    liste = calcul_fragmente(liste, nom[1])
-                    if not liste: continue
-                    liste = simplifier_polynome(liste, nom[1])
-                    if not liste: continue
-                    fonctions[nom[0]] = [nom[1], liste]
-                    liste = nettoyer_polynome(liste, nom[1])
-                    print(affiche_polynome(liste, nom[1]))
+                    if tester_polynome(liste, nom[1]):
+                        print(simple_print(liste, nom[1]))
+                        fonctions[nom[0]] = [nom[1], liste]
+                    else:
+                        liste = calcul_fragmente(liste, nom[1])
+                        if not liste: continue
+                        liste = simplifier_polynome(liste, nom[1])
+                        if not liste: continue
+                        fonctions[nom[0]] = [nom[1], liste]
+                        liste = nettoyer_polynome(liste, nom[1])
+                        print(affiche_polynome(liste, nom[1]))
             else:
                 reel, imaginaire, mat = traitement_partie_calculatoire(liste)
                 if nom != '?':
