@@ -222,13 +222,13 @@ def degree_null(liste, inconnu):
                 if index - 1 >= 0 and liste[index - 1] == '-':
                     coeff = -1
                 if not isinstance(nbr, int):
-                    print("Error : mixed types")
+                    print("Error : mixed types 2")
                     return 'null'
                 nbr += coeff * calculs.nombre(liste[index])
         elif isinstance(liste[index], list) and inconnu not in liste[index]:
             if nbr != 0 and not isinstance(nbr, list):
-                print("Error : mixed types")
-                return 'null' 
+                print("Error : mixed types 1")
+                return 'null'
             if not nbr:
                 nbr = liste[index]
             else:

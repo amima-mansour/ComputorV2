@@ -7,7 +7,7 @@ def test_complexe(chaine):
 
     try:
         assert chaine != 'i'
-        return True 
+        return True
     except:
         print("Error : i can not be the name of a variable")
         return False

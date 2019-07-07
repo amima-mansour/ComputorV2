@@ -93,6 +93,9 @@ def calcul_global(liste):
 
     if len(liste) == 1:
         return liste[0]
+    if len(liste) == 2 and liste[0] == '-':
+        char = '-' + liste[1]
+        return char
     liste_finale = []
     # l'objectif est de calculer ce qui a dans les parentheses
     for i, element in enumerate(liste):

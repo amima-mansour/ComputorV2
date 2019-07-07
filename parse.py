@@ -14,7 +14,7 @@ class Parsing:
     def __init__(self, chaine):
 
         liste_gauche, liste_droite = outils.equal_number(chaine)
-        self.var, self.liste, self.tmp_inconnus = [], [], {} 
+        self.var, self.liste, self.tmp_inconnus = [], [], {}
         # permutation des parties gauche et droite dans le cas ou la partie droite = '?'
         if liste_droite and liste_gauche:
             liste_droite = liste_droite.strip()

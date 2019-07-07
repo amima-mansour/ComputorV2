@@ -40,6 +40,7 @@ if __name__ == "__main__":
                         liste = nettoyer_polynome(liste, nom[1])
                         print(affiche_polynome(liste, nom[1]))
             else:
+                print("la liste = {}".format(liste))
                 reel, imaginaire, mat = traitement_partie_calculatoire(liste)
                 if nom != '?':
                     if mat != 'null':

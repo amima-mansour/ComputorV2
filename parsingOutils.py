@@ -224,13 +224,15 @@ def organiser_liste(liste):
         elif re.match(r'^(-[0-9]+(\.[0-9]+)?)$', element):
             if element == liste[0]:
                 liste_finale.append(element)
-            else:  
+            else:
                 liste_finale.extend(['-', element[1:]])
-        elif re.match(r"^[0-9]+(\.[0-9]+)?[a-zA-Z]+$", element):
-            m = re.search(r"[0-9]+(\.[0-9]+)?", element)
+        elif re.match(r"^(-)?(\+)?[0-9]+(\.[0-9]+)?[a-zA-Z]+$", element):
+            m = re.search(r"(-)?[0-9]+(\.[0-9]+)?", element)
             nombre = m.group(0)
             m = re.search(r"[a-zA-Z]+", element)
             var = m.group(0)
+            if len(liste_finale) != 0 and liste_finale[len(liste_finale) - 1] not in '+-/*':
+                liste_finale.append('+')
             liste_finale.extend([nombre, '*', var])
         else:
             while element:
@@ -262,7 +264,9 @@ def test_partie_calculatoire(chaine, nom_var):
     if len(nom_var) == 2:
         inconnu = nom_var[1]
     # parsing pour mettre cette expression dans une liste
+    print("la liste avant premier test = {}".format(chaine))
     liste = premier_test(chaine)
+    print("la liste apres premier test = {}".format(liste))
     # eliminer les elements vides
     for element in liste:
         if not element:

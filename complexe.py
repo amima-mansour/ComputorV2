@@ -41,7 +41,7 @@ def calcul_complexe_elementaire_gauche(liste, start, char):
     liste_a_traiter = liste[fin:start]
     liste = liste[:fin] + liste[start + 1:]
     if len(liste_a_traiter) == 1:
-        img = calculs.nombre(calculs.calcul_global(liste_a_traiter[0]))
+        img = calculs.nombre(calculs.calcul_global([liste_a_traiter[0]]))
     else:
         img = calculs.nombre(calculs.calcul_global(liste_a_traiter))
     if char == '/':
