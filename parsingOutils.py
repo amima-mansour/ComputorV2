@@ -122,21 +122,27 @@ def test_elementaire(chaine):
 
     liste_finale = []
     liste = chaine.split()
+    print("liste apres split = {}".format(liste))
     for i, element in enumerate(liste):
+        print("element = {}".format(element))
         if element == ')':
-            liste_finale
+            return liste_finale
         m = re.search(r"(\*|-|%|/|\+|\^)", element)
         if element in '+*-/%^':
             liste_finale.append(element)
         elif m:
             char = m.group(0)
             liste_intermediaire = element.split(char)
+            print("liste_intermediare = {}".format(liste_intermediaire))
             if liste_intermediaire[0] == '':
                 liste_finale.append(element)
             else:
-                liste_finale.append(liste_intermediaire[0])
-                liste_finale.append(char)
-                liste_finale.append(liste_intermediaire[1])
+                for key, el in enumerate(liste_intermediaire):
+                    if el != '':
+                        liste_finale.append(el)
+                        if key < len(liste_intermediaire) - 1 or (element[len(element) - 1] in '+*-/%^' and i < len(element) - 1):
+                            liste_finale.append(char)
+                print("liste_finale apres append = {}".format(liste_finale))
         else:
             liste_finale.append(element)
     return liste_finale
@@ -146,18 +152,24 @@ def premier_test(chaine):
 
     liste_finale = []
     if '(' not in chaine:
+        print("chaine test elementaire = {}".format(chaine))
         return test_elementaire(chaine)
     else:
         indice_1 = chaine.index('(')
         if indice_1 != 0:
             liste_finale = liste_finale + test_elementaire(chaine[:indice_1].strip())
+            print("la liste finale_indice != 0= {}".format(liste_finale))
         indice_1 += 1
         nouvelle_chaine = chaine[indice_1:].strip()
+        print("nouvelle chaine_indice_1 = {}".format(nouvelle_chaine))
         indice_2 = indice_caractere(nouvelle_chaine, '(', ')')
         if indice_2 > 0:
+            print("liste fianle avant append 1 = {}".format(liste_finale))
             liste_finale.append(premier_test(nouvelle_chaine[:indice_2].strip()))
+            print("la liste finale apres 1 = {}".format(liste_finale))
             indice_2 += 1
             if indice_2 < len(nouvelle_chaine):
+                print("2")
                 liste_finale = liste_finale + premier_test(nouvelle_chaine[indice_2:].strip())
         else:
             liste_finale.append([])
