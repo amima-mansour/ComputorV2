@@ -24,6 +24,13 @@ def remplacer(liste, tmp_var, tmp_fonction, tmp_matrices, tmp_inconnus, var):
         if isinstance(element, list):
             valeur = element[1][0]
             fonction = element[0]
+            if fonction in ['det', 'inv', 'com', 'trans']:
+                if tmp_matrices and valeur.lower() in tmp_matrices:
+                    element[1][0] = tmp_matrices[valeur.lower()]
+                    continue
+                else:
+                    print("Error : matrix not defined")
+                    return -1, []
             if ((len(tmp_var.keys()) > 0 and valeur.lower() not in tmp_var.keys() and not re.match(r'^[0-9]+(\.[0-9]+)?$', valeur)) \
                 or (len(tmp_fonction) > 0 and fonction.lower() not in tmp_fonction.keys())):
                 print("Error : variable or function not defined")
@@ -134,15 +141,16 @@ def test_elementaire(chaine):
             char = m.group(0)
             liste_intermediaire = element.split(char)
             print("liste_intermediare = {}".format(liste_intermediaire))
-            if liste_intermediaire[0] == '':
-                liste_finale.append(element)
-            else:
-                for key, el in enumerate(liste_intermediaire):
-                    if el != '':
-                        liste_finale.append(el)
-                        if key < len(liste_intermediaire) - 1 or (element[len(element) - 1] in '+*-/%^' and i < len(element) - 1):
-                            liste_finale.append(char)
-                print("liste_finale apres append = {}".format(liste_finale))
+            # if liste_intermediaire[0] == '':
+                # liste_finale.append(element)
+            #   liste_intermediaire = liste_intermediaire[1:]
+            #else:
+            for key, el in enumerate(liste_intermediaire):
+                if el != '':
+                    liste_finale.append(el)
+                if key < len(liste_intermediaire) - 1 or (element[len(element) - 1] in '+*-/%^' and i < len(element) - 1):
+                    liste_finale.append(char)
+            print("liste_finale apres append = {}".format(liste_finale))
         else:
             liste_finale.append(element)
     return liste_finale
@@ -251,6 +259,9 @@ def organiser_liste(liste):
                 m = re.search(r"\*|\/|\+|-|%|\^", element)
                 if m:
                     char = m.group(0)
+                    if char == element:
+                        print ("Error Operator")
+                        return []
                     index_char = element.index(char)
                     if index_char != 0:
                         liste_finale.append(''.join(element[:index_char]))
@@ -285,7 +296,7 @@ def test_partie_calculatoire(chaine, nom_var):
             liste.remove(element)
     # chaque nombre et operateur constitue un element tout seul de la liste
     liste = organiser_liste(liste)
-    if not liste:
+    if not liste or len(liste) == 0:
         return liste, {}
     # chercher les variables inconnues et se trouvant dans l'expression
     variables = calculs.variables_inconnues(liste)
@@ -340,14 +351,14 @@ def traitement_matrice(chaine):
         index = chaine.index('[')
         fin = indice_caractere(chaine[index + 1:].strip(), '[', ']') + index
         if fin < 0:
-            return []
+            return [], []
         if index != 0:
             liste_avant = chaine[:index].strip().split()
             inconnus.update(calculs.variables_inconnues(liste_avant))
             liste.extend(liste_avant)
         matrice_element = matrice.matrice_parsing(chaine[index + 1:fin + 1].strip())
         if not matrice_element:
-            return []
+            return [], []
         liste.append(matrice_element)
         if fin < len(chaine) - 1:
             chaine = chaine[fin + 2:].strip()

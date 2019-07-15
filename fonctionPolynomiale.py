@@ -222,12 +222,12 @@ def degree_null(liste, inconnu):
                 if index - 1 >= 0 and liste[index - 1] == '-':
                     coeff = -1
                 if not isinstance(nbr, int):
-                    print("Error : mixed types 2")
+                    print("Error : mixed types")
                     return 'null'
                 nbr += coeff * calculs.nombre(liste[index])
         elif isinstance(liste[index], list) and inconnu not in liste[index]:
             if nbr != 0 and not isinstance(nbr, list):
-                print("Error : mixed types 1")
+                print("Error : mixed types")
                 return 'null'
             if not nbr:
                 nbr = liste[index]
@@ -368,18 +368,16 @@ def integrer_2_polynomes(liste1, liste2):
             liste_finale.append(element)
     return liste_finale
 
-def developper_puissance(liste, inconnu, puissance, nbr):
-
-    carc, coeff = '+', 1
-    if nbr < 0:
-        carc, coeff = '-', -1
+def developper_puissance(liste, inconnu, puissance):
+    
+    coeff, carc = 1, '+'
     index, liste_finale = 0, []
     while index < len(liste):
         if liste[index] == inconnu:
             liste_finale.extend([liste[index], '^'])
             liste_finale.append(str(calculs.nombre(liste[index + 2])*puissance))
             index += 2
-        elif liste[index] in '+-':
+        elif not isinstance(liste[index], list) and liste[index] in '+-':
             if carc == liste[index]:
                 liste_finale.append('+')
             else:
@@ -387,7 +385,7 @@ def developper_puissance(liste, inconnu, puissance, nbr):
         elif liste[index] == '*':
            liste_finale.append('*')
         else:
-            liste_finale.append(str(calculs.nombre(liste[index])**puissance * coeff * nbr))
+            liste_finale.append(str(calculs.nombre(liste[index])**puissance * coeff))
         index += 1
     tmp, index = 2, 0
     if puissance == 2:
@@ -407,8 +405,4 @@ def developper_puissance(liste, inconnu, puissance, nbr):
         if tmp < 0 and carc == '-':
             coeff, carac = -1, '+'
         liste_finale.extend([carc, str(coeff * tmp), '*',inconnu, '^', '1'])
-    if calculs.nombre(liste_finale[0]) < 0:
-        liste_finale = ['-'] + liste_finale
-    else:
-        liste_finale = ['+'] + liste_finale
     return liste_finale

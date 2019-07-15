@@ -10,15 +10,22 @@ def matrice_parsing(chaine):
 
     matrice = []
     liste = chaine.split(';')
-    if len(liste) >= 2 and not liste[1]:
+    # print ("liste avant parsing = {}".format(liste))
+    if (len(liste) >= 2 and not liste[1]):
         print("Error Matrix")
         return matrice
     for element in liste:
+        # print ("element = {}".format(type(element)))
+        if not '[' in element or not ']' in element:
+            print ("Error Matrix")
+            return []
         element = element[1:len(element) - 1]
+        # print ("element = {}".format(element))
         liste_tmp = []
         element_tmp = element.split(',')
+        # print ("elements = {}".format(element_tmp))
         for el in element_tmp:
-            if len(el) != 1:
+            if len(el) != 1 and not '[' in el:
                 el = parsingOutils.organiser_liste(el.split())
                 img, reel, liste = complexe.calcul_imaginaire(el)
                 reel_1 = calculs.calcul_global(liste)
@@ -37,10 +44,15 @@ def matrice_parsing(chaine):
                 print("Error Matrix")
                 return []
         matrice.append(liste_tmp)
+    # print (matrice)
     return matrice
 
 # fonction qui permet de verifier que les dimensions de deux matrices sont egales
 def compare_dimensions(M1, M2):
+
+    if not isinstance(M1, list) or not isinstance(M2, list):
+        print("Error : Matrix dimensions")
+        return 0, 0
 
     n = len(M1) # recuperer le nombre des lignes de la matrice M1
     m = len(M1[0]) # recuperer le nombre des colonnes de la matrice M1
@@ -48,7 +60,8 @@ def compare_dimensions(M1, M2):
         assert n == len(M2)
         assert m == len(M2[0])
     except:
-        print("Erreur : Matrix dimensions")
+        print("Error : Matrix dimensions")
+        0, 0
     else:
         return n, m
 
@@ -59,18 +72,20 @@ def dimensions_multiplication(M1, M2):
     try:
         assert m == len(M2)
     except:
-        print("Erreur Matrice dimensions : Multiplication des 2 Matrices impossible")
+        print("Erreur Matrice dimensions : Multiplication of 2 Matrices is impossible")
+        return 0
     else:
         return m
 
 # fonction qui permet de verifier que si une matrice est carree
-def matrice_carree(M):
+def square_matrix(M):
 
     m = len(M) # recuperer le nombre de lignes de la matrice
     try:
         assert m == len(M[0])
     except:
-        print("Erreur Matrice dimensions : Matrice non carree")
+        print("Error Matrix dimensions : Not a Square Matrix")
+        return 0
     else:
         return m
 
@@ -79,6 +94,8 @@ def matrice_carree(M):
 def addition_matrice(M1, M2):
 
     n, m = compare_dimensions(M1, M2)
+    if n == 0:
+        return []
     M = [[0 for j in range(m)] for i in range(n)]# creer une matrice nxm pleine de zéro
 
     for i in range(n):
@@ -91,6 +108,7 @@ def addition_matrice(M1, M2):
 def soustraction_matrice(M1, M2):
 
     n, m = compare_dimensions(M1, M2)
+    if n == 0: return []
     M=[[0 for j in range(m)] for i in range(n)]#creer une matrice nxm pleine de zéro
     for i in range(n):
         for j in range(m):
@@ -101,6 +119,8 @@ def soustraction_matrice(M1, M2):
 def multiplication_matrice(M1, M2):
 
     m = dimensions_multiplication(M1, M2)
+    if not m:
+        return []
     n1 = len(M1) # nombre de lignes de la matrice produit
     m1 = len(M2[0]) # le nombre de colonnes de la matrice produit
     M =[[0 for j in range(m1)] for i in range(n1)]#creer une matrice nxn pleine de zéro
@@ -145,7 +165,9 @@ def determinant_matrice_2(M):
 # fonction qui permet de determiner le determinant de la matrice
 def determinant_matrice(M):
 
-    n = matrice_carree(M)
+    n = square_matrix(M)
+    if n == 0:
+        return 'error' 
     if n == 1:
         return M[0][0]
     if n == 2:
@@ -188,18 +210,19 @@ def inverser_matrice(M):
         M = multiplication_matrice_reel(transpose(comatrice(M)), 1 / det)
         return M
     else:
-        print("Erreur : Matrice non inversibles")
+        print("Error : Not Inversible Matrix")
+        return []
 
 # traiter la liste des matrices suivant les operations
 def traiter(liste):
 
-    if liste[0] == 'det(':
+    if liste[0] == 'det(' or liste[0] == 'det':
         return determinant_matrice(liste[1])
-    if liste[0] == 'inv(':
+    if liste[0] == 'inv(' or liste[0] == 'inv':
         return inverser_matrice(liste[1]) 
-    if liste[0] == 'com(':
+    if liste[0] == 'com(' or liste[0] == 'com':
         return comatrice(liste[1])
-    if liste[0] == 'trans(':
+    if liste[0] == 'trans(' or liste[0] == 'trans':
         return transpose(liste[1])
     mat = liste[0]
     i = 1

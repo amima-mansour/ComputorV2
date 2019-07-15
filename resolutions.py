@@ -8,42 +8,38 @@ def parametre_equation(liste, inconnu):
 
     liste_finale = []
     a, b, c, index = 0, 0, 0, 0
-    while index < len(liste):
-        if isinstance(liste[index], list):
-            if len(liste_finale) > 0:
-                del liste_finale[len(liste_finale) - 1]
-            nbr, start = 1, index
-            if index - 1 >= 0 and liste[index - 1] == '*':
-                nbr = calculs.nombre(liste[index - 2])
-                strat -= 2
-                if index - 3 >= 0:
-                    start -= 1
-                    if liste[index - 3] == '-':
-                        nbr *= -1
-                del liste_finale[start: index]
-            if index + 1 < len(liste) and liste[index + 1] == '^':
-                liste_finale.extend(polynome.developper_puissance(liste[index], inconnu, calculs.nombre(liste[index + 2]), nbr))
-                index += 2
-            else:
-                liste_finale.extend(polynome.developper_puissance(liste[index], inconnu, 1, nbr))
-        else:
-            liste_finale.append(liste[index])
-        index += 1
-    liste = polynome.simplifier_polynome(liste_finale, inconnu)
     index = 0
+    print("la liste parametre = {}".format(liste))
     while index < len(liste):
+        print("la liste a traiter = {}".format(liste))
+        if isinstance(liste[index], list):
+            coeff = 1
+            if index - 1 >= 0 and liste[index - 1] == '-':
+                coeff *= -1
+            if index - 2 >= 0 and liste[index - 1] == '*':
+                coeff *= calculs.nombre(liste[index - 2])
+                if index - 3 >= 0 and liste[index - 3] == '-':
+                    coeff *= -1
+            if index + 1 < len(liste) and liste[index + 1] == '^':
+                liste[index] = polynome.developper_puissance(liste[index], inconnu, calculs.nombre(liste[index + 2]))
+                del liste[index + 1:index + 3]
+                print("liste apres developpement = {}".format(liste))
+            a_tmp, b_tmp, c_tmp = parametre_equation(liste[index], inconnu)
+            a += coeff * a_tmp
+            b += coeff * b_tmp
+            c += coeff * c_tmp
         if liste[index] == inconnu:
             coeff = 1
             if index - 3 >= 0 and liste[index - 3] == '-':
                 coeff *= -1
             if liste[index + 2] == '0':
-                c = coeff * calculs.nombre(liste[index - 2])
+                c += coeff * calculs.nombre(liste[index - 2])
             elif liste[index + 2] == '1':
-                b = coeff * calculs.nombre(liste[index - 2])
+                b += coeff * calculs.nombre(liste[index - 2])
             else:
-                a = coeff * calculs.nombre(liste[index - 2])
+                a += coeff * calculs.nombre(liste[index - 2])
         index += 1
-    return a, b, c, a**2 - 4 * b * c, liste
+    return a, b, c
 
 # trouver le degree
 def degree_polynome(liste, inconnu):
@@ -70,7 +66,8 @@ def degree_polynome(liste, inconnu):
 # resolution
 def resoudre(liste, inconnu):
 
-    a, b, c, disc, liste = parametre_equation(liste, inconnu)
+    a, b, c = parametre_equation(liste, inconnu)
+    print("a = {}, b = {}, c = {}".format(a, b, c))
     d = degree_polynome(liste, inconnu)
     if d == 0:
         print("The solution is:\nAll real numbers")

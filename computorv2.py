@@ -42,28 +42,33 @@ if __name__ == "__main__":
             else:
                 print("la liste = {}".format(liste))
                 reel, imaginaire, mat = traitement_partie_calculatoire(liste)
-                if nom != '?':
+                print("Nom = {}".format(type(nom))
+                if nom != '?' or nom != ['?']:
                     if mat != 'null':
                         matrices[nom[0]] = mat
                     elif imaginaire != '0' and imaginaire != 'null':
-                        variables[nom[0]] = reel + ' + ' + imaginaire + '* i'
+                        variables[nom[0]] = reel + ' + ' + imaginaire + ' * i'
                     elif reel != 'null':
                         variables[nom[0]] = reel
                     else:
                         pass
-                if mat != 'null' and isinstance(mat, list):
+                if mat != 'null' and isinstance(mat, list) and len(mat) > 0:
                     print(matrice.affiche_matrice(mat))
                 elif imaginaire != '0' and imaginaire != 'null':
                     if reel != '0':
                         char = ' + '
                         if calculs.nombre(imaginaire) < 0 :
                             imaginaire = imaginaire[1:]
-                            char = ' - ' 
-                        print('{}{}{}i'.format(reel, char, imaginaire))
+                            char = ' - '
+                        if imaginaire != '1': 
+                            print('{}{}{}i'.format(reel, char, imaginaire))
+                        else:
+                            print('{}{}i'.format(reel, char))
                     else:
                         print('{}i'.format(imaginaire))
                 elif reel != 0 and reel != 'null':
                     print(reel)
                 else:
                     pass
+            print("var matrices = {}".format(matrices))
         chaine = input()

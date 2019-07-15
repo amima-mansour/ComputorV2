@@ -41,7 +41,7 @@ def calcul_elementaire(liste, char):
             else:
                 tmp = n_1 - n_2
         else:
-            print("Error : Syntax")
+            print("Error")
             return [] 
         del liste[index]
         liste[index - 1] = str(tmp)
